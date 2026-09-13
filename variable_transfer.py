@@ -34,4 +34,4 @@ def transfer_data(input_file, output_file):
 py_file = "python_variables.py"
 matlab_file = "matlab_variables.m"
 
-transfer_data(matlab_file, py_file)
+transfer_data(py_file, matlab_file)

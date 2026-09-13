@@ -6,10 +6,7 @@ include_list = {"variable_a" : None,
 
 exclude_list = {"variable_a" : None, 
                  "variable_b" : None, 
-                 "variable_c" : None, 
-                 "variable_d" : None, 
-                 "variable_e" : None, 
-                 "variable_f" : None}
+                 }
 
 all_list = {}
 
