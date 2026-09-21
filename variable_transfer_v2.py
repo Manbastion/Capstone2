@@ -1,87 +1,92 @@
 import re
 
-include_list = {"variable_a" : None, 
-                 "variable_b" : None, 
-                }
+ASSIGNMENT_PATTERN = re.compile(
+    r"^(?P<indent>\s*)"
+    r"(?P<name>[A-Za-z_]\w*)"
+    r"(?P<before_eq>\s*=\s*)"
+    r"(?P<value>[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)"
+    r"(?P<semicolon>\s*;?)"
+    r"(?P<comment>\s*(?:[%#].*)?)$"
+)
 
-exclude_list = {"variable_a" : None, 
-                 "variable_b" : None, 
-                 }
 
-all_list = {}
+def read_variables(file_path):
+    variables = {}
 
-file_pattern = r"(\w+)\s*=\s*([\d.]+)"
+    with open(file_path, "r", encoding="utf-8") as file:
+        for line in file:
+            match = ASSIGNMENT_PATTERN.match(line.rstrip("\n"))
+            if match:
+                variables[match.group("name")] = match.group("value")
 
-def transfer_data(input_file, output_file, mode="everything"):
+    return variables
 
-    if mode == "include" :
-        with open(input_file,"r") as open_input_file :
-            for line in open_input_file :
-                string_match = re.search(file_pattern, line)
-                if string_match :
-                    var_name = string_match.group(1)
-                    var_value = string_match.group(2)
-    
-                    if var_name in include_list:
-                        include_list[var_name] = var_value
-        
-        with open(output_file, "r") as open_output_file:
-            output_file_content = open_output_file.read()
-    
-        for var_name, var_value in include_list.items():
-            target_pattern = r"\b" + re.escape(var_name) + r"\s*=\s*.*"
-            replacement_text = f"{var_name} = {var_value}"
-            output_file_content = re.sub(target_pattern, replacement_text, output_file_content)
-    
-        with open(output_file, "w") as open_output_file:
-            open_output_file.write(output_file_content)
-        
-    elif mode == "exclude" :
-        with open(input_file,"r") as open_input_file :
-            for line in open_input_file :
-                string_match = re.search(file_pattern, line)
-                if string_match :
-                    var_name = string_match.group(1)
-                    var_value = string_match.group(2)
-    
-                    if var_name not in exclude_list:
-                        all_list[var_name] = var_value
-        
-        with open(output_file, "r") as open_output_file:
-            output_file_content = open_output_file.read()
-    
-        for var_name, var_value in all_list.items():
-            target_pattern = r"\b" + re.escape(var_name) + r"\s*=\s*.*"
-            replacement_text = f"{var_name} = {var_value}"
-            output_file_content = re.sub(target_pattern, replacement_text, output_file_content)
-    
-        with open(output_file, "w") as open_output_file:
-            open_output_file.write(output_file_content)
 
-    elif mode == "everything" :
-        with open(input_file,"r") as open_input_file :
-            for line in open_input_file :
-                string_match = re.search(file_pattern, line)
-                if string_match :
-                    var_name = string_match.group(1)
-                    var_value = string_match.group(2)
-    
-                    if var_name not in all_list:
-                        all_list[var_name] = var_value
-        
-        with open(output_file, "r") as open_output_file:
-            output_file_content = open_output_file.read()
-    
-        for var_name, var_value in all_list.items():
-            target_pattern = r"\b" + re.escape(var_name) + r"\s*=\s*.*"
-            replacement_text = f"{var_name} = {var_value}"
-            output_file_content = re.sub(target_pattern, replacement_text, output_file_content)
-    
-        with open(output_file, "w") as open_output_file:
-            open_output_file.write(output_file_content)
+def transfer_data(input_file, output_file, mode="everything", selected_variables=None):
 
-    
-py_file = "python_variables.py"
-matlab_file = "matlab_variables.m"
+    source_variables = read_variables(input_file)
+    selected = set(selected_variables or [])
 
-transfer_data(matlab_file, py_file, "include")
+    if mode == "everything":
+        variables_to_transfer = set(source_variables)
+    elif mode == "include":
+        variables_to_transfer = set(source_variables) & selected
+    elif mode == "exclude":
+        variables_to_transfer = set(source_variables) - selected
+    else:
+        raise ValueError(f"Unknown transfer mode: {mode}")
+
+    with open(output_file, "r", encoding="utf-8") as file:
+        output_lines = file.readlines()
+
+    transferred = []
+    destination_variables = set()
+    new_lines = []
+
+    for line in output_lines:
+        original_newline = "\n" if line.endswith("\n") else ""
+        text = line.rstrip("\n")
+        match = ASSIGNMENT_PATTERN.match(text)
+
+        if not match:
+            new_lines.append(line)
+            continue
+
+        name = match.group("name")
+        destination_variables.add(name)
+
+        if name in variables_to_transfer:
+            new_value = source_variables[name]
+
+            # Preserve the destination file's indentation, spacing,
+            # semicolon, and trailing comment. Only the value changes.
+            replacement = (
+                f'{match.group("indent")}'
+                f'{name}'
+                f'{match.group("before_eq")}'
+                f'{new_value}'
+                f'{match.group("semicolon")}'
+                f'{match.group("comment")}'
+            )
+            new_lines.append(replacement + original_newline)
+            transferred.append(name)
+        else:
+            new_lines.append(line)
+
+    with open(output_file, "w", encoding="utf-8") as file:
+        file.writelines(new_lines)
+
+    missing_in_destination = sorted(variables_to_transfer - destination_variables)
+
+    return {
+        "source_count": len(source_variables),
+        "requested_count": len(variables_to_transfer),
+        "transferred": sorted(set(transferred)),
+        "missing_in_destination": missing_in_destination,
+    }
+
+if __name__ == "__main__":
+    py_file = "python_variables.py"
+    matlab_file = "matlab_variables.m"
+    result = transfer_data(py_file, matlab_file, "everything")
+    print(result)
