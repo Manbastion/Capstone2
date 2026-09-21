@@ -1,7 +1,9 @@
-variable_a = 0.0
-variable_b = 0.0
-variable_c = 0.0
-variable_d = 0.0
-variable_e = 0.0
-variable_f = 0.0
-variable_g = 1.0
+v0 = 10
+a = 2
+t = 20
+
+v = v0 + a*t;
+s = v0*t + 1/2 * a * t^2;
+
+fprintf("The total displacement was %d", s)
+fprintf("\nThe final velocity was %d", v)
