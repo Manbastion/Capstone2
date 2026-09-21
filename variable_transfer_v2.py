@@ -58,8 +58,6 @@ def transfer_data(input_file, output_file, mode="everything", selected_variables
         if name in variables_to_transfer:
             new_value = source_variables[name]
 
-            # Preserve the destination file's indentation, spacing,
-            # semicolon, and trailing comment. Only the value changes.
             replacement = (
                 f'{match.group("indent")}'
                 f'{name}'
