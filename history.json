@@ -1,5 +1,31 @@
 [
   {
+    "id": "2900e565703349a797d5478fa80ec77a",
+    "timestamp": "2026-09-22T09:08:48",
+    "source_file": "/home/tommy/year4/Sem2/Capstone/Capstone2/python_variables.py",
+    "destination_file": "/home/tommy/year4/Sem2/Capstone/Capstone2/matlab_variables.m",
+    "source_name": "python_variables.py",
+    "destination_name": "matlab_variables.m",
+    "mode": "All Variables",
+    "selected_variables": [
+      "v0",
+      "a",
+      "t"
+    ],
+    "transferred_variables": [
+      "a",
+      "t",
+      "v0"
+    ],
+    "changes": {
+      "v0": {
+        "before": "12",
+        "after": "20"
+      }
+    },
+    "reverted_at": null
+  },
+  {
     "id": "e6248823122649098edc5d32db827378",
     "timestamp": "2026-09-21T20:26:44",
     "source_file": "/home/tommy/year4/Sem2/Capstone/Capstone2/python_variables.py",
@@ -21,7 +47,7 @@
         "after": "12"
       }
     },
-    "reverted_at": null
+    "reverted_at": "2026-09-22T09:09:44"
   },
   {
     "id": "a1f01c1cc054467eb2700f105a2cf4b8",
