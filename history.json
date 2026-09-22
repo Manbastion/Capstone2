@@ -26,15 +26,21 @@
     "reverted_at": null
   },
   {
-    "id": "e6248823122649098edc5d32db827378",
-    "timestamp": "2026-09-21T20:26:44",
-    "source_file": "/home/tommy/year4/Sem2/Capstone/Capstone2/python_variables.py",
-    "destination_file": "/home/tommy/year4/Sem2/Capstone/Capstone2/matlab_variables.m",
-    "source_name": "python_variables.py",
-    "destination_name": "matlab_variables.m",
+    "id": "f7807a6bffb5472abdbf35daaac51377",
+    "timestamp": "2026-09-22T00:11:11",
+    "source_file": "/root/ICT2/test_source.py",
+    "destination_file": "/root/ICT2/test_destination.m",
+    "source_name": "test_source.py",
+    "destination_name": "test_destination.m",
     "mode": "All Variables",
     "selected_variables": [
-      "t"
+      "battery",
+      "impact_velocity",
+      "wall_thickness",
+      "launch_angle",
+      "air_pressure",
+      "solar_power",
+      "temperature"
     ],
     "transferred_variables": [
       "a",
@@ -47,7 +53,7 @@
         "after": "12"
       }
     },
-    "reverted_at": "2026-09-22T09:09:44"
+    "reverted_at": null
   },
   {
     "id": "a1f01c1cc054467eb2700f105a2cf4b8",
