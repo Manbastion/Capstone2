@@ -1,29 +1,13 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from variable_transfer_v2 import (
-    valid_name,
-    valid_value,
-    fuzzy_matches,
-    best_fuzzy_match,
-    similarity_label,
-)
+from variable_transfer_v2 import valid_name, valid_value
+from fuzzy_algorithm import best_fuzzy_match, name_similarity, similarity_label
 
 
 class ConfigEditor(tk.Toplevel):
-    """
-    Main transfer configuration window.
-
-    The user can:
-      - choose which source variables are transferred
-      - see fuzzy suggestions for destination variables
-      - accept/reject suggestions
-      - manually link any source variable to any destination variable
-    """
-
     def __init__(self, parent, source_variables, destination_variables, on_save):
         super().__init__(parent)
-
         self.title("Transfer Configuration")
         self.minsize(1050, 650)
         self.geometry("1150x720")
@@ -33,14 +17,12 @@ class ConfigEditor(tk.Toplevel):
         self.source_variables = dict(source_variables)
         self.destination_variables = dict(destination_variables)
         self.on_save = on_save
-
         self.rows = {}
-        self.selected_source = None
-        self.selected_destination = None
+        self.editor = None
+        self.edit_cell = None
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(2, weight=1)
-
         self._build()
         self._populate()
         self._auto_match()
@@ -51,49 +33,25 @@ class ConfigEditor(tk.Toplevel):
         header.columnconfigure(0, weight=1)
 
         ttk.Label(
-            header,
-            text="Transfer Configuration",
-            font=("TkDefaultFont", 14, "bold"),
+            header, text="Transfer Configuration",
+            font=("TkDefaultFont", 14, "bold")
         ).grid(row=0, column=0, sticky="w")
-
         ttk.Label(
             header,
             text=(
-                "Choose the variables to transfer and confirm how source "
-                "variables map to destination variables. Suggested matches "
-                "are based on fuzzy name similarity."
+                "Double-click Source Variable or Source Value to edit it. "
+                "Double-click Destination Variable to choose a different link."
             ),
-            wraplength=950,
-            justify="left",
+            wraplength=950, justify="left",
         ).grid(row=1, column=0, sticky="w", pady=(5, 0))
 
         toolbar = ttk.Frame(self, padding=(12, 0, 12, 8))
         toolbar.grid(row=1, column=0, sticky="ew")
-
-        ttk.Button(
-            toolbar, text="Auto Match", command=self._auto_match
-        ).pack(side="left")
-
-        ttk.Button(
-            toolbar, text="Accept High-Confidence", command=self._accept_high
-        ).pack(side="left", padx=6)
-
-        ttk.Button(
-            toolbar, text="Clear Links", command=self._clear_links
-        ).pack(side="left")
-
-        ttk.Button(
-            toolbar, text="Select All", command=self._select_all
-        ).pack(side="left", padx=(20, 6))
-
-        ttk.Button(
-            toolbar, text="Select None", command=self._select_none
-        ).pack(side="left")
-
-        ttk.Label(
-            toolbar,
-            text="Tip: select one source and one destination, then click Link.",
-        ).pack(side="right")
+        ttk.Button(toolbar, text="Auto Match", command=self._auto_match).pack(side="left")
+        ttk.Button(toolbar, text="Accept High-Confidence", command=self._accept_high).pack(side="left", padx=6)
+        ttk.Button(toolbar, text="Clear Links", command=self._clear_links).pack(side="left")
+        ttk.Button(toolbar, text="Select All", command=self._select_all).pack(side="left", padx=(20, 6))
+        ttk.Button(toolbar, text="Select None", command=self._select_none).pack(side="left")
 
         frame = ttk.Frame(self, padding=(12, 0, 12, 12))
         frame.grid(row=2, column=0, sticky="nsew")
@@ -101,21 +59,10 @@ class ConfigEditor(tk.Toplevel):
         frame.rowconfigure(0, weight=1)
 
         columns = (
-            "transfer",
-            "source",
-            "source_value",
-            "destination",
-            "destination_value",
-            "score",
-            "confidence",
+            "transfer", "source", "source_value", "destination",
+            "destination_value", "score", "confidence",
         )
-
-        self.tree = ttk.Treeview(
-            frame,
-            columns=columns,
-            show="headings",
-            selectmode="browse",
-        )
+        self.tree = ttk.Treeview(frame, columns=columns, show="headings", selectmode="browse")
 
         headings = {
             "transfer": "Transfer",
@@ -126,159 +73,81 @@ class ConfigEditor(tk.Toplevel):
             "score": "Similarity",
             "confidence": "Confidence",
         }
-
         widths = {
-            "transfer": 70,
-            "source": 190,
-            "source_value": 120,
-            "destination": 210,
-            "destination_value": 120,
-            "score": 90,
-            "confidence": 110,
+            "transfer": 70, "source": 190, "source_value": 120,
+            "destination": 210, "destination_value": 120,
+            "score": 90, "confidence": 110,
         }
-
         for column in columns:
             self.tree.heading(column, text=headings[column])
             self.tree.column(column, width=widths[column], anchor="w")
 
         self.tree.grid(row=0, column=0, sticky="nsew")
-
-        scroll = ttk.Scrollbar(
-            frame, orient="vertical", command=self.tree.yview
-        )
+        scroll = ttk.Scrollbar(frame, orient="vertical", command=self.tree.yview)
         scroll.grid(row=0, column=1, sticky="ns")
         self.tree.configure(yscrollcommand=scroll.set)
-
-        self.tree.bind("<<TreeviewSelect>>", self._row_selected)
         self.tree.bind("<Double-1>", self._double_click)
 
-        manual = ttk.LabelFrame(
-            self,
-            text="Manual Linking",
-            padding=10,
-        )
-        manual.grid(row=3, column=0, sticky="ew", padx=12, pady=(0, 8))
-        manual.columnconfigure(1, weight=1)
-        manual.columnconfigure(3, weight=1)
-
-        ttk.Label(manual, text="Selected source:").grid(
-            row=0, column=0, sticky="w"
-        )
-        self.source_label = ttk.Label(manual, text="None")
-        self.source_label.grid(row=0, column=1, sticky="w", padx=6)
-
-        ttk.Label(manual, text="Selected destination:").grid(
-            row=0, column=2, sticky="w", padx=(20, 0)
-        )
-        self.destination_label = ttk.Label(manual, text="None")
-        self.destination_label.grid(row=0, column=3, sticky="w", padx=6)
-
-        ttk.Button(
-            manual,
-            text="Link Selected",
-            command=self._link_selected,
-        ).grid(row=1, column=0, columnspan=2, sticky="w", pady=(8, 0))
-
-        ttk.Button(
-            manual,
-            text="Unlink Selected Row",
-            command=self._unlink_selected,
-        ).grid(row=1, column=2, columnspan=2, sticky="w", pady=(8, 0))
-
         bottom = ttk.Frame(self, padding=(12, 0, 12, 12))
-        bottom.grid(row=4, column=0, sticky="ew")
-
+        bottom.grid(row=3, column=0, sticky="ew")
         self.status = tk.StringVar(value="")
         ttk.Label(bottom, textvariable=self.status).pack(side="left")
-
-        ttk.Button(bottom, text="Cancel", command=self.destroy).pack(
-            side="right"
-        )
-        ttk.Button(bottom, text="Save Configuration", command=self._save).pack(
-            side="right", padx=6
-        )
+        ttk.Button(bottom, text="Cancel", command=self.destroy).pack(side="right")
+        ttk.Button(bottom, text="Save Configuration", command=self._save).pack(side="right", padx=6)
 
     def _populate(self):
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-
-        self.rows.clear()
-
         for source_name, source_value in self.source_variables.items():
-            item = self.tree.insert(
-                "",
-                "end",
-                values=(
-                    "☐",
-                    source_name,
-                    source_value,
-                    "—",
-                    "—",
-                    "—",
-                    "Not linked",
-                ),
-            )
+            item = self.tree.insert("", "end")
             self.rows[item] = {
+                "original_source": source_name,
                 "source": source_name,
+                "source_value": source_value,
                 "selected": True,
                 "destination": None,
                 "score": 0.0,
             }
+        self._refresh_rows()
 
     def _auto_match(self):
         used = set()
+        for row in self.rows.values():
+            row["destination"] = None
+            row["score"] = 0.0
 
-        # Exact names always win.
-        for item, row in self.rows.items():
+        for row in self.rows.values():
             source = row["source"]
-            if source in self.destination_variables:
+            if source in self.destination_variables and source not in used:
                 row["destination"] = source
                 row["score"] = 1.0
                 used.add(source)
 
-        # Then fuzzy match the remaining variables.
-        for item, row in self.rows.items():
+        for row in self.rows.values():
             if row["destination"]:
                 continue
-
-            result = best_fuzzy_match(
-                row["source"],
-                self.destination_variables.keys(),
-                used,
-            )
-
+            result = best_fuzzy_match(row["source"], self.destination_variables.keys(), used)
             if result and result["score"] >= 0.45:
                 row["destination"] = result["destination"]
                 row["score"] = result["score"]
                 used.add(result["destination"])
 
         self._refresh_rows()
-
-        linked = sum(1 for row in self.rows.values() if row["destination"])
-        self.status.set(
-            f"Suggested {linked} link(s). Review every fuzzy match before saving."
-        )
+        linked = sum(bool(row["destination"]) for row in self.rows.values())
+        self.status.set(f"Suggested {linked} link(s).")
 
     def _accept_high(self):
         count = 0
-
         for row in self.rows.values():
             if row["destination"] and row["score"] >= 0.80:
                 row["selected"] = True
                 count += 1
-
         self._refresh_rows()
-        self.status.set(
-            f"Accepted {count} high-confidence match(es)."
-        )
+        self.status.set(f"Accepted {count} high-confidence match(es).")
 
     def _clear_links(self):
         for row in self.rows.values():
             row["destination"] = None
             row["score"] = 0.0
-
         self._refresh_rows()
-        self.status.set("All links cleared.")
 
     def _select_all(self):
         for row in self.rows.values():
@@ -292,251 +161,181 @@ class ConfigEditor(tk.Toplevel):
 
     def _refresh_rows(self):
         for item, row in self.rows.items():
-            source = row["source"]
             destination = row["destination"]
-
-            if destination:
-                destination_value = self.destination_variables.get(
-                    destination, "?"
-                )
-                score = row["score"]
-                score_text = f"{score * 100:.1f}%"
-                confidence = similarity_label(score)
-            else:
-                destination_value = "—"
-                score_text = "—"
-                confidence = "Not linked"
-
-            transfer_text = "☑" if row["selected"] else "☐"
-
-            self.tree.item(
-                item,
-                values=(
-                    transfer_text,
-                    source,
-                    self.source_variables[source],
-                    destination or "—",
-                    destination_value,
-                    score_text,
-                    confidence,
-                ),
-            )
-
-    def _row_selected(self, _event=None):
-        selection = self.tree.selection()
-        if not selection:
-            return
-
-        item = selection[0]
-        row = self.rows[item]
-
-        self.selected_source = row["source"]
-        self.selected_destination = row["destination"]
-
-        self.source_label.config(text=self.selected_source)
-
-        if row["destination"]:
-            self.destination_label.config(text=row["destination"])
-        else:
-            self.destination_label.config(text="None")
+            score = row["score"]
+            self.tree.item(item, values=(
+                "☑" if row["selected"] else "☐",
+                row["source"],
+                row["source_value"],
+                destination or "—",
+                self.destination_variables.get(destination, "—") if destination else "—",
+                f"{score * 100:.1f}%" if destination else "—",
+                similarity_label(score) if destination else "Not linked",
+            ))
 
     def _double_click(self, event):
         item = self.tree.identify_row(event.y)
         column = self.tree.identify_column(event.x)
-
         if not item:
             return
 
-        # Clicking the transfer column toggles whether this source is included.
         if column == "#1":
             self.rows[item]["selected"] = not self.rows[item]["selected"]
             self._refresh_rows()
-            return
-
-        # Double-click destination column opens a manual destination chooser.
-        if column == "#4":
+        elif column in ("#2", "#3"):
+            self._start_edit(item, column)
+        elif column == "#4":
             self._choose_destination(item)
+
+    def _start_edit(self, item, column):
+        self._commit_edit()
+        box = self.tree.bbox(item, column)
+        if not box:
+            return
+        row = self.rows[item]
+        value = row["source"] if column == "#2" else row["source_value"]
+        self.editor = ttk.Entry(self.tree)
+        self.editor.insert(0, value)
+        self.editor.select_range(0, tk.END)
+        self.editor.place(x=box[0], y=box[1], width=box[2], height=box[3])
+        self.editor.focus_set()
+        self.edit_cell = (item, column)
+        self.editor.bind("<Return>", lambda _e: self._commit_edit())
+        self.editor.bind("<FocusOut>", lambda _e: self._commit_edit())
+        self.editor.bind("<Escape>", lambda _e: self._cancel_edit())
+
+    def _commit_edit(self):
+        if not self.editor:
+            return
+        item, column = self.edit_cell
+        value = self.editor.get().strip()
+        row = self.rows[item]
+
+        if column == "#2":
+            if not valid_name(value):
+                messagebox.showerror("Invalid variable", f"Invalid variable name: {value!r}", parent=self)
+                self._cancel_edit()
+                return
+            other_names = {r["source"] for key, r in self.rows.items() if key != item}
+            if value in other_names:
+                messagebox.showerror("Duplicate variable", f"{value!r} already exists.", parent=self)
+                self._cancel_edit()
+                return
+            row["source"] = value
+            row["destination"] = None
+            row["score"] = 0.0
+        else:
+            if not valid_value(value):
+                messagebox.showerror("Invalid value", f"Invalid numeric value: {value!r}", parent=self)
+                self._cancel_edit()
+                return
+            row["source_value"] = value
+
+        self._cancel_edit()
+        self._refresh_rows()
+
+    def _cancel_edit(self):
+        if self.editor:
+            self.editor.destroy()
+        self.editor = None
+        self.edit_cell = None
 
     def _choose_destination(self, item):
         row = self.rows[item]
-
         window = tk.Toplevel(self)
         window.title(f"Link {row['source']}")
         window.minsize(500, 500)
         window.transient(self)
         window.grab_set()
 
-        ttk.Label(
-            window,
-            text=f"Choose destination for: {row['source']}",
-            font=("TkDefaultFont", 11, "bold"),
-        ).pack(anchor="w", padx=12, pady=12)
-
+        ttk.Label(window, text=f"Choose destination for: {row['source']}", font=("TkDefaultFont", 11, "bold")).pack(anchor="w", padx=12, pady=12)
         search = tk.StringVar()
-        ttk.Entry(window, textvariable=search).pack(
-            fill="x", padx=12, pady=(0, 8)
-        )
-
+        ttk.Entry(window, textvariable=search).pack(fill="x", padx=12, pady=(0, 8))
         listing = tk.Listbox(window, exportselection=False)
         listing.pack(fill="both", expand=True, padx=12)
 
         def refresh(*_):
             listing.delete(0, tk.END)
             query = search.get().lower().strip()
-
             candidates = sorted(
                 self.destination_variables,
                 key=lambda name: (
                     0 if query and query in name.lower() else 1,
-                    -name_similarity_safe(row["source"], name),
+                    -name_similarity(row["source"], name),
                     name.lower(),
                 ),
             )
-
             for name in candidates:
-                score = name_similarity_safe(row["source"], name)
-                listing.insert(
-                    tk.END,
-                    f"{name}    ({score * 100:.1f}%)"
-                )
+                listing.insert(tk.END, f"{name}    ({name_similarity(row['source'], name) * 100:.1f}%)")
 
         def choose():
             selection = listing.curselection()
             if not selection:
-                messagebox.showwarning(
-                    "Link variable",
-                    "Select a destination variable.",
-                    parent=window,
-                )
+                messagebox.showwarning("Link variable", "Select a destination variable.", parent=window)
                 return
-
-            text = listing.get(selection[0])
-            destination = text.rsplit("    (", 1)[0]
-
+            destination = listing.get(selection[0]).rsplit("    (", 1)[0]
             row["destination"] = destination
-            row["score"] = name_similarity_safe(
-                row["source"], destination
-            )
-
+            row["score"] = name_similarity(row["source"], destination)
             self._refresh_rows()
             window.destroy()
 
         search.trace_add("write", refresh)
         refresh()
-
         buttons = ttk.Frame(window)
         buttons.pack(fill="x", padx=12, pady=12)
-        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(
-            side="right"
-        )
-        ttk.Button(buttons, text="Link", command=choose).pack(
-            side="right", padx=6
-        )
-
-    def _link_selected(self):
-        if not self.selected_source:
-            messagebox.showwarning(
-                "Link variable",
-                "Select a source row first.",
-                parent=self,
-            )
-            return
-
-        # A row is selected, so use its existing destination if it has one.
-        item = self.tree.selection()[0]
-        self._choose_destination(item)
-
-    def _unlink_selected(self):
-        selection = self.tree.selection()
-
-        if not selection:
-            return
-
-        row = self.rows[selection[0]]
-        row["destination"] = None
-        row["score"] = 0.0
-        self._refresh_rows()
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="right")
+        ttk.Button(buttons, text="Link", command=choose).pack(side="right", padx=6)
 
     def _save(self):
-        mappings = {}
-        selected = []
+        self._commit_edit()
+        selected, mappings, source_changes = [], {}, {}
 
         for row in self.rows.values():
+            source = row["source"]
             if row["selected"]:
-                selected.append(row["source"])
-
                 if not row["destination"]:
                     messagebox.showwarning(
                         "Unlinked variable",
-                        f"{row['source']!r} is selected for transfer "
-                        "but has no destination link.",
+                        f"{source!r} is selected but has no destination link.",
                         parent=self,
                     )
                     return
+                selected.append(source)
+                mappings[source] = row["destination"]
 
-                mappings[row["source"]] = row["destination"]
+            source_changes[row["original_source"]] = {
+                "name": source,
+                "value": row["source_value"],
+            }
 
-        # Destination variables can only receive one source.
         destinations = list(mappings.values())
-        duplicates = {
-            name for name in destinations if destinations.count(name) > 1
-        }
-
+        duplicates = {name for name in destinations if destinations.count(name) > 1}
         if duplicates:
             messagebox.showerror(
                 "Duplicate destination",
-                "More than one source variable is linked to: "
-                + ", ".join(sorted(duplicates)),
+                "More than one source variable is linked to: " + ", ".join(sorted(duplicates)),
                 parent=self,
             )
             return
-
         if not selected:
-            messagebox.showwarning(
-                "No variables",
-                "Select at least one variable to transfer.",
-                parent=self,
-            )
+            messagebox.showwarning("No variables", "Select at least one variable to transfer.", parent=self)
             return
 
-        # Explicitly ask for confirmation when the configuration contains
-        # fuzzy rather than exact matches. This prevents an apparently
-        # plausible name from being silently linked to the wrong variable.
         fuzzy = [
-            (source, destination, self.rows[item]["score"])
-            for item, row in self.rows.items()
-            for source, destination in [(row["source"], row["destination"])]
-            if row["selected"]
-            and destination
-            and row["score"] < 1.0
+            (row["source"], row["destination"], row["score"])
+            for row in self.rows.values()
+            if row["selected"] and row["destination"] and row["score"] < 1.0
         ]
-
         if fuzzy:
-            lines = [
-                f"• {source}  →  {destination}  "
-                f"({score * 100:.1f}%)"
-                for source, destination, score in fuzzy[:12]
-            ]
-
+            lines = [f"• {a} → {b} ({score * 100:.1f}%)" for a, b, score in fuzzy[:12]]
             if len(fuzzy) > 12:
                 lines.append(f"… and {len(fuzzy) - 12} more.")
-
-            confirmed = messagebox.askyesno(
+            if not messagebox.askyesno(
                 "Confirm fuzzy matches",
-                "The following links are based on name similarity, "
-                "not exact names:\n\n"
-                + "\n".join(lines)
-                + "\n\nDo you want to keep these links?",
+                "These links are based on name similarity:\n\n" + "\n".join(lines) + "\n\nKeep these links?",
                 parent=self,
-            )
-
-            if not confirmed:
+            ):
                 return
 
-        if self.on_save(selected, mappings) is not False:
+        if self.on_save(selected, mappings, source_changes) is not False:
             self.destroy()
-
-
-def name_similarity_safe(source, destination):
-    from variable_transfer_v2 import name_similarity
-    return name_similarity(source, destination)

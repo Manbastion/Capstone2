@@ -4,7 +4,7 @@ from tkinter import ttk, filedialog, messagebox
 
 from config import ConfigEditor
 from history import HistoryWindow, record_transfer
-from variable_transfer_v2 import read_variables, transfer_data
+from variable_transfer_v2 import read_variables, transfer_data, update_source_variables
 
 MODES = ["All Variables", "Include Variables", "Exclude Variables"]
 BACKEND = {
@@ -300,16 +300,22 @@ class VariableTransferGUI(tk.Tk):
             self._save_config,
         )
 
-    def _save_config(self, selected, mappings):
+    def _save_config(self, selected, mappings, source_changes):
+        try:
+            update_source_variables(self.source.get().strip(), source_changes)
+        except (OSError, ValueError, UnicodeError) as error:
+            messagebox.showerror("Configuration error", str(error), parent=self)
+            return False
+
         self.config_selected = list(selected)
         self.config_mappings = dict(mappings)
         self.config_signature = self._current_signature()
+        self._load()
 
         self.status.set(
             f"Configuration saved: {len(selected)} variable(s) selected, "
-            f"{len(mappings)} link(s)."
+            f"{len(mappings)} link(s). Source variables updated."
         )
-
         return True
 
     def _history(self):
@@ -361,6 +367,7 @@ class VariableTransferGUI(tk.Tk):
                 BACKEND[self.mode.get()],
                 self.config_selected,
                 mappings=self.config_mappings,
+                apply=False,
             )
         except (OSError, ValueError, UnicodeError) as error:
             messagebox.showerror(
