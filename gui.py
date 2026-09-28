@@ -1,29 +1,13 @@
-"""Main GUI for the Grasshopper–HabSim variable-transfer prototype.
-
-Run the application from main.py, not from this file.
-"""
-
 import os
 import tkinter as tk
-
-from tkinter import filedialog, messagebox, ttk
+from tkinter import ttk, filedialog, messagebox
 
 from config import ConfigEditor
 from history import HistoryWindow, record_transfer
-from variable_transfer_v2 import (
-    read_variables,
-    transfer_data,
-    update_source_variables,
-)
+from variable_transfer_v2 import read_variables, transfer_data
 
-
-MODES = [
-    "All Variables",
-    "Include Variables",
-    "Exclude Variables",
-]
-
-MODE_TO_BACKEND = {
+MODES = ["All Variables", "Include Variables", "Exclude Variables"]
+BACKEND = {
     "All Variables": "everything",
     "Include Variables": "include",
     "Exclude Variables": "exclude",
@@ -34,732 +18,428 @@ class VariableTransferGUI(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title(
-            "Grasshopper–HabSim Variable Transfer"
-        )
-        self.minsize(780, 520)
+        self.title("Grasshopper–HabSim Variable Transfer")
+        self.minsize(820, 560)
+        self.geometry("980x650")
 
-        self.source_file = tk.StringVar()
-        self.destination_file = tk.StringVar()
-        self.mode = tk.StringVar(
-            value=MODES[0]
-        )
-        self.status = tk.StringVar(
-            value="Ready"
-        )
-        self.config_status = tk.StringVar(
-            value="Using values from source file"
-        )
+        self.source = tk.StringVar()
+        self.destination = tk.StringVar()
+        self.mode = tk.StringVar(value=MODES[0])
+        self.status = tk.StringVar(value="Ready")
 
-        self._build_ui()
-        self._update_variable_controls()
+        # Saved configuration for the next transfer.
+        self.config_selected = []
+        self.config_mappings = {}
+        self.config_signature = None
 
-    def _build_ui(self):
-        self.columnconfigure(
-            0,
-            weight=1,
-        )
-        self.rowconfigure(
-            0,
-            weight=1,
-        )
+        self._ui()
+        self._mode()
 
-        main = ttk.Frame(
-            self,
-            padding=16,
-        )
+    def _ui(self):
+        main = ttk.Frame(self, padding=14)
+        main.grid(sticky="nsew")
 
-        main.grid(
-            row=0,
-            column=0,
-            sticky="nsew",
-        )
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+        main.columnconfigure(1, weight=1)
+        main.rowconfigure(4, weight=1)
 
-        main.columnconfigure(
-            1,
-            weight=1,
+        for row, (label, variable, command) in enumerate((
+            ("Source file:", self.source, self._browse_source),
+            ("Destination file:", self.destination, self._browse_destination),
+        )):
+            ttk.Label(main, text=label).grid(
+                row=row, column=0, sticky="w", pady=5
+            )
+            ttk.Entry(main, textvariable=variable).grid(
+                row=row, column=1, sticky="ew", pady=5
+            )
+            ttk.Button(main, text="Browse…", command=command).grid(
+                row=row, column=2, padx=(8, 0)
+            )
+
+        ttk.Label(main, text="Mode:").grid(
+            row=2, column=0, sticky="w", pady=5
         )
 
-        main.rowconfigure(
-            5,
-            weight=1,
-        )
-
-        # --------------------------------------------------------
-        # Source file
-        # --------------------------------------------------------
-        ttk.Label(
-            main,
-            text="Source file:",
-        ).grid(
-            row=0,
-            column=0,
-            sticky="w",
-            padx=(0, 8),
-            pady=6,
-        )
-
-        ttk.Entry(
-            main,
-            textvariable=self.source_file,
-        ).grid(
-            row=0,
-            column=1,
-            sticky="ew",
-            pady=6,
-        )
-
-        ttk.Button(
-            main,
-            text="Browse…",
-            command=self._browse_source,
-        ).grid(
-            row=0,
-            column=2,
-            padx=(8, 0),
-            pady=6,
-        )
-
-        # --------------------------------------------------------
-        # Destination file
-        # --------------------------------------------------------
-        ttk.Label(
-            main,
-            text="Destination file:",
-        ).grid(
-            row=1,
-            column=0,
-            sticky="w",
-            padx=(0, 8),
-            pady=6,
-        )
-
-        ttk.Entry(
-            main,
-            textvariable=self.destination_file,
-        ).grid(
-            row=1,
-            column=1,
-            sticky="ew",
-            pady=6,
-        )
-
-        ttk.Button(
-            main,
-            text="Browse…",
-            command=self._browse_destination,
-        ).grid(
-            row=1,
-            column=2,
-            padx=(8, 0),
-            pady=6,
-        )
-
-        # --------------------------------------------------------
-        # Mode
-        # --------------------------------------------------------
-        ttk.Label(
-            main,
-            text="Mode:",
-        ).grid(
-            row=2,
-            column=0,
-            sticky="w",
-            padx=(0, 8),
-            pady=6,
-        )
-
-        mode_box = ttk.Combobox(
+        box = ttk.Combobox(
             main,
             textvariable=self.mode,
             values=MODES,
             state="readonly",
         )
+        box.grid(row=2, column=1, sticky="ew")
+        box.bind("<<ComboboxSelected>>", lambda _: self._mode())
 
-        mode_box.grid(
-            row=2,
-            column=1,
-            sticky="ew",
-            pady=6,
-        )
-
-        mode_box.bind(
-            "<<ComboboxSelected>>",
-            lambda _event: self._update_variable_controls(),
-        )
-
-        # --------------------------------------------------------
-        # Config controls
-        # --------------------------------------------------------
-        config_row = ttk.Frame(main)
-
-        config_row.grid(
-            row=3,
-            column=0,
-            columnspan=3,
-            sticky="ew",
-            pady=(6, 2),
-        )
-
-        config_row.columnconfigure(
-            1,
-            weight=1,
+        tools = ttk.Frame(main)
+        tools.grid(
+            row=3, column=0, columnspan=3, sticky="ew", pady=6
         )
 
         ttk.Button(
-            config_row,
-            text="Open Config",
-            command=self._open_config,
-        ).grid(
-            row=0,
-            column=0,
-            sticky="w",
-            padx=(0, 10),
-        )
+            tools,
+            text="Configure Transfer",
+            command=self._config,
+        ).pack(side="left")
+
+        ttk.Button(
+            tools,
+            text="Reload Source",
+            command=self._load,
+        ).pack(side="left", padx=6)
 
         ttk.Label(
-            config_row,
-            textvariable=self.config_status,
-        ).grid(
-            row=0,
-            column=1,
-            sticky="w",
-        )
+            tools,
+            text="Fuzzy matching is reviewed in the configuration window.",
+        ).pack(side="right")
 
-        ttk.Button(
-            config_row,
-            text="Reload Source",
-            command=self._reload_source,
-        ).grid(
-            row=0,
-            column=2,
-            sticky="e",
-        )
-
-        # --------------------------------------------------------
-        # Variable selector
-        # --------------------------------------------------------
-        self.variable_frame = ttk.LabelFrame(
+        self.var_frame = ttk.LabelFrame(
             main,
-            text="Variables",
-            padding=10,
+            text="Source Variables",
+            padding=8,
+        )
+        self.var_frame.grid(
+            row=4,
+            column=0,
+            columnspan=3,
+            sticky="nsew",
+            pady=6,
+        )
+        self.var_frame.columnconfigure(0, weight=1)
+        self.var_frame.rowconfigure(0, weight=1)
+
+        self.list = tk.Listbox(
+            self.var_frame,
+            selectmode=tk.EXTENDED,
+            exportselection=False,
+        )
+        self.list.grid(row=0, column=0, sticky="nsew")
+
+        bar = ttk.Frame(self.var_frame)
+        bar.grid(row=1, column=0, sticky="w", pady=(6, 0))
+
+        ttk.Button(bar, text="Select All", command=self._all).pack(
+            side="left"
+        )
+        ttk.Button(
+            bar,
+            text="Clear",
+            command=lambda: self.list.selection_clear(0, tk.END),
+        ).pack(side="left", padx=5)
+        ttk.Button(bar, text="Refresh", command=self._load).pack(
+            side="left"
         )
 
-        self.variable_frame.grid(
+        actions = ttk.Frame(main)
+        actions.grid(
             row=5,
             column=0,
             columnspan=3,
-            sticky="nsew",
-            pady=(12, 8),
-        )
-
-        self.variable_frame.columnconfigure(
-            0,
-            weight=1,
-        )
-        self.variable_frame.rowconfigure(
-            0,
-            weight=1,
-        )
-
-        list_frame = ttk.Frame(
-            self.variable_frame
-        )
-
-        list_frame.grid(
-            row=0,
-            column=0,
-            sticky="nsew",
-        )
-
-        list_frame.columnconfigure(
-            0,
-            weight=1,
-        )
-        list_frame.rowconfigure(
-            0,
-            weight=1,
-        )
-
-        self.variable_listbox = tk.Listbox(
-            list_frame,
-            selectmode=tk.EXTENDED,
-            exportselection=False,
-            height=10,
-        )
-
-        self.variable_listbox.grid(
-            row=0,
-            column=0,
-            sticky="nsew",
-        )
-
-        scrollbar = ttk.Scrollbar(
-            list_frame,
-            orient="vertical",
-            command=self.variable_listbox.yview,
-        )
-
-        scrollbar.grid(
-            row=0,
-            column=1,
-            sticky="ns",
-        )
-
-        self.variable_listbox.configure(
-            yscrollcommand=scrollbar.set
-        )
-
-        button_row = ttk.Frame(
-            self.variable_frame
-        )
-
-        button_row.grid(
-            row=1,
-            column=0,
-            sticky="w",
-            pady=(8, 0),
+            sticky="ew",
+            pady=8,
         )
 
         ttk.Button(
-            button_row,
-            text="Select All",
-            command=self._select_all,
-        ).grid(
-            row=0,
-            column=0,
-            padx=(0, 6),
-        )
+            actions,
+            text="History",
+            command=self._history,
+        ).pack(side="left")
 
         ttk.Button(
-            button_row,
-            text="Clear Selection",
-            command=self._clear_selection,
-        ).grid(
-            row=0,
-            column=1,
-            padx=(0, 6),
-        )
+            actions,
+            text="Transfer",
+            command=self._transfer,
+        ).pack(side="right")
 
-        ttk.Button(
-            button_row,
-            text="Refresh",
-            command=self._load_variables,
-        ).grid(
-            row=0,
-            column=2,
-        )
-
-        # --------------------------------------------------------
-        # Main actions: History + Transfer
-        # --------------------------------------------------------
-        action_row = ttk.Frame(main)
-
-        action_row.grid(
+        ttk.Separator(main).grid(
             row=6,
             column=0,
             columnspan=3,
             sticky="ew",
-            pady=(8, 0),
+            pady=6,
         )
 
-        action_row.columnconfigure(
-            1,
-            weight=1,
+        ttk.Label(main, text="Status:").grid(
+            row=7, column=0, sticky="w"
         )
-
-        ttk.Button(
-            action_row,
-            text="History",
-            command=self._open_history,
-        ).grid(
-            row=0,
-            column=0,
-            sticky="w",
-        )
-
-        ttk.Button(
-            action_row,
-            text="Transfer",
-            command=self._run_transfer,
-        ).grid(
-            row=0,
-            column=2,
-            sticky="e",
-        )
-
-        # --------------------------------------------------------
-        # Status bar
-        # --------------------------------------------------------
-        ttk.Separator(main).grid(
-            row=7,
-            column=0,
-            columnspan=3,
-            sticky="ew",
-            pady=(12, 6),
-        )
-
-        ttk.Label(
-            main,
-            text="Status:",
-        ).grid(
-            row=8,
-            column=0,
-            sticky="w",
-        )
-
         ttk.Label(
             main,
             textvariable=self.status,
-        ).grid(
-            row=8,
-            column=1,
-            columnspan=2,
-            sticky="w",
+        ).grid(row=7, column=1, columnspan=2, sticky="w")
+
+    def _choose(self, title):
+        return filedialog.askopenfilename(
+            title=title,
+            filetypes=[
+                ("Supported", "*.py *.m *.txt *.csv"),
+                ("All files", "*.*"),
+            ],
         )
 
     def _browse_source(self):
-        path = filedialog.askopenfilename(
-            title="Choose source file",
-            filetypes=[
-                (
-                    "Supported files",
-                    "*.py *.m *.txt *.csv",
-                ),
-                ("Python files", "*.py"),
-                ("MATLAB files", "*.m"),
-                ("All files", "*.*"),
-            ],
-        )
+        path = self._choose("Choose source file")
 
         if path:
-            self.source_file.set(path)
-            self.config_status.set(
-                "Using values from source file"
-            )
-            self.status.set(
-                f"Source selected: {os.path.basename(path)}"
-            )
-            self._load_variables()
+            self.source.set(path)
+            self._reset_configuration()
+            self._load()
+
+            if self.destination.get().strip():
+                self._config()
 
     def _browse_destination(self):
-        path = filedialog.askopenfilename(
-            title="Choose destination file",
-            filetypes=[
-                (
-                    "Supported files",
-                    "*.py *.m *.txt *.csv",
-                ),
-                ("Python files", "*.py"),
-                ("MATLAB files", "*.m"),
-                ("All files", "*.*"),
-            ],
-        )
+        path = self._choose("Choose destination file")
 
         if path:
-            self.destination_file.set(path)
+            self.destination.set(path)
+            self._reset_configuration()
             self.status.set(
-                f"Destination selected: {os.path.basename(path)}"
+                f"Destination: {os.path.basename(path)}"
             )
 
-    def _current_variables(self):
-        source = self.source_file.get().strip()
+            # Open the large configuration menu as soon as both files exist.
+            if os.path.isfile(self.source.get().strip()):
+                self.after(100, self._config)
 
-        if not source or not os.path.isfile(source):
+    def _variables(self):
+        path = self.source.get().strip()
+
+        if not os.path.isfile(path):
             return {}
 
-        return read_variables(source)
+        try:
+            return read_variables(path)
+        except (OSError, UnicodeError):
+            return {}
 
-    def _open_config(self):
-        source = self.source_file.get().strip()
+    def _destination_variables(self):
+        path = self.destination.get().strip()
 
-        if not source or not os.path.isfile(source):
+        if not os.path.isfile(path):
+            return {}
+
+        try:
+            return read_variables(path)
+        except (OSError, UnicodeError):
+            return {}
+
+    def _load(self):
+        self.list.delete(0, tk.END)
+
+        data = self._variables()
+
+        for name in data:
+            self.list.insert(tk.END, name)
+
+        self._all()
+
+        if data:
+            self.status.set(
+                f"Loaded {len(data)} source variable(s)."
+            )
+        else:
+            self.status.set("Choose a valid source file.")
+
+    def _all(self):
+        if self.list.size():
+            self.list.selection_set(0, tk.END)
+
+    def _selected(self):
+        return [
+            self.list.get(index)
+            for index in self.list.curselection()
+        ]
+
+    def _mode(self):
+        if self.mode.get() == "All Variables":
+            self.var_frame.grid_remove()
+        else:
+            self.var_frame.grid()
+            self._load()
+
+        self._reset_configuration()
+
+    def _reset_configuration(self):
+        self.config_selected = []
+        self.config_mappings = {}
+        self.config_signature = None
+
+    def _current_signature(self):
+        return (
+            os.path.abspath(self.source.get().strip())
+            if self.source.get().strip()
+            else "",
+            os.path.abspath(self.destination.get().strip())
+            if self.destination.get().strip()
+            else "",
+            self.mode.get(),
+        )
+
+    def _config(self):
+        source = self._variables()
+        destination = self._destination_variables()
+
+        if not source:
             messagebox.showerror(
-                "Source file",
-                "Choose a valid source file before opening Config.",
+                "Configuration",
+                "Choose a valid source file first.",
             )
             return
 
-        variables = self._current_variables()
-
-        if not variables:
+        if not destination:
             messagebox.showerror(
-                "No variables",
-                "No supported simple numeric variable assignments "
-                "were found in the source file.",
+                "Configuration",
+                "Choose a valid destination file first.",
             )
             return
 
         ConfigEditor(
             self,
-            variables,
-            self._save_config_from_editor,
+            source,
+            destination,
+            self._save_config,
         )
 
-    def _save_config_from_editor(
-        self,
-        edited_variables,
-        source_changes,
-    ):
-        source = self.source_file.get().strip()
+    def _save_config(self, selected, mappings):
+        self.config_selected = list(selected)
+        self.config_mappings = dict(mappings)
+        self.config_signature = self._current_signature()
 
-        if not source or not os.path.isfile(source):
-            messagebox.showerror(
-                "Source file",
-                "The source file is no longer available.",
-            )
-            return False
-
-        try:
-            result = update_source_variables(
-                source,
-                source_changes,
-            )
-        except (
-            OSError,
-            UnicodeError,
-            ValueError,
-        ) as exc:
-            messagebox.showerror(
-                "Config save error",
-                str(exc),
-            )
-            self.status.set(
-                "Config save failed."
-            )
-            return False
-
-        self.config_status.set(
-            f"Source saved ({result['count']} variables)"
-        )
         self.status.set(
-            "Config saved. Source file has been updated."
+            f"Configuration saved: {len(selected)} variable(s) selected, "
+            f"{len(mappings)} link(s)."
         )
-        self._load_variables()
 
         return True
 
-    def _reload_source(self):
-        self.config_status.set(
-            "Using values from source file"
-        )
-        self.status.set(
-            "Source values reloaded."
-        )
-        self._load_variables()
+    def _history(self):
+        HistoryWindow(self, self._after_revert)
 
-    def _load_variables(self):
-        self.variable_listbox.delete(
-            0,
-            tk.END,
-        )
+    def _after_revert(self):
+        self._load()
+        self.status.set("History revert complete.")
 
-        variables = self._current_variables()
+    def _transfer(self):
+        source_path = self.source.get().strip()
+        destination_path = self.destination.get().strip()
 
-        for name in variables:
-            self.variable_listbox.insert(
-                tk.END,
-                name,
-            )
-
-        if variables:
-            self._select_all()
-            self.status.set(
-                f"Loaded {len(variables)} variable(s)."
-            )
-        else:
-            self.status.set(
-                "Choose a source file to load variables."
-            )
-
-    def _select_all(self):
-        if self.variable_listbox.size():
-            self.variable_listbox.selection_set(
-                0,
-                tk.END,
-            )
-
-    def _clear_selection(self):
-        self.variable_listbox.selection_clear(
-            0,
-            tk.END,
-        )
-
-    def _update_variable_controls(self):
-        if self.mode.get() == "All Variables":
-            self.variable_frame.grid_remove()
-        else:
-            self.variable_frame.grid()
-            self._load_variables()
-
-    def get_selected_variables(self):
-        return [
-            self.variable_listbox.get(i)
-            for i in self.variable_listbox.curselection()
-        ]
-
-    def _open_history(self):
-        HistoryWindow(
-            self,
-            on_revert=self._after_history_revert,
-        )
-
-    def _after_history_revert(self):
-        """Refresh the main GUI after History changes the files."""
-        self._load_variables()
-        self.config_status.set(
-            "Source updated by History revert"
-        )
-        self.status.set(
-            "History revert complete. Source and destination were restored."
-        )
-
-    def _run_transfer(self):
-        source = self.source_file.get().strip()
-        destination = self.destination_file.get().strip()
-
-        if not source or not os.path.isfile(source):
+        if (
+            not os.path.isfile(source_path)
+            or not os.path.isfile(destination_path)
+        ):
             messagebox.showerror(
-                "Source file",
-                "Please choose a valid source file.",
-            )
-            self.status.set(
-                "Transfer failed: invalid source file."
+                "Transfer",
+                "Choose valid source and destination files.",
             )
             return
 
-        if (
-            not destination
-            or not os.path.isfile(destination)
-        ):
+        if os.path.abspath(source_path) == os.path.abspath(destination_path):
             messagebox.showerror(
-                "Destination file",
-                "Please choose a valid destination file.",
-            )
-            self.status.set(
-                "Transfer failed: invalid destination file."
+                "Transfer",
+                "Source and destination must be different.",
             )
             return
 
-        if (
-            os.path.abspath(source)
-            == os.path.abspath(destination)
-        ):
-            messagebox.showerror(
-                "File selection",
-                "Source and destination must be different files.",
-            )
-            self.status.set(
-                "Transfer failed: source and destination are the same file."
-            )
+        signature = self._current_signature()
+
+        # If no configuration exists for these exact files/mode, open it.
+        if self.config_signature != signature:
+            self._config()
             return
 
-        backend_mode = MODE_TO_BACKEND[
-            self.mode.get()
-        ]
-
-        selected_variables = (
-            self.get_selected_variables()
-        )
-
-        if (
-            backend_mode in (
-                "include",
-                "exclude",
-            )
-            and not selected_variables
-        ):
+        if not self.config_selected:
             messagebox.showwarning(
-                "No variables selected",
-                "Please select at least one variable "
-                "for Include/Exclude mode.",
-            )
-            self.status.set(
-                "Transfer cancelled: no variables selected."
+                "Transfer",
+                "No variables are selected.",
             )
             return
 
         try:
             result = transfer_data(
-                source,
-                destination,
-                mode=backend_mode,
-                selected_variables=selected_variables,
+                source_path,
+                destination_path,
+                BACKEND[self.mode.get()],
+                self.config_selected,
+                mappings=self.config_mappings,
             )
-
-            # Record every successful transfer.
-            record_transfer(
-                source_file=source,
-                destination_file=destination,
-                mode=self.mode.get(),
-                selected_variables=selected_variables,
-                transferred_variables=result["transferred"],
-                changes=result["changes"],
-            )
-
-        except (
-            OSError,
-            UnicodeError,
-            ValueError,
-        ) as exc:
+        except (OSError, ValueError, UnicodeError) as error:
             messagebox.showerror(
                 "Transfer error",
-                str(exc),
-            )
-            self.status.set(
-                "Transfer failed."
+                str(error),
             )
             return
 
-        transferred = result["transferred"]
-        missing = result[
-            "missing_in_destination"
-        ]
-        changed_count = len(
-            result["changes"]
+        # Confirm before making changes.
+        changed = len(result["changes"])
+        transferred = len(result["transferred"])
+        missing = result["missing_in_destination"]
+
+        summary = (
+            f"Transfer {transferred} variable(s)?\n\n"
+            f"Values that will change: {changed}\n"
         )
 
-        if transferred:
-            self.status.set(
-                f"Transfer complete: {len(transferred)} transferred, "
-                f"{changed_count} value(s) changed."
+        if missing:
+            summary += (
+                "\nThe following destination variables were not found:\n"
+                + ", ".join(missing)
+                + "\n\nThey will NOT be transferred."
             )
 
-            message = (
-                "Transfer complete.\n\n"
-                f"Transferred: {len(transferred)}\n"
-                f"Values changed: {changed_count}"
+        if not messagebox.askyesno(
+            "Confirm Transfer",
+            summary,
+            parent=self,
+        ):
+            self.status.set("Transfer cancelled.")
+            return
+
+        try:
+            # Re-run after confirmation so the file is changed only here.
+            result = transfer_data(
+                source_path,
+                destination_path,
+                BACKEND[self.mode.get()],
+                self.config_selected,
+                mappings=self.config_mappings,
             )
 
-            if missing:
-                message += (
-                    "\n\nNot found in destination:\n"
-                    + ", ".join(missing)
-                )
+            record_transfer(
+                source_path,
+                destination_path,
+                self.mode.get(),
+                self.config_selected,
+                result["transferred"],
+                result["changes"],
+                result["mappings"],
+            )
+        except (OSError, ValueError, UnicodeError) as error:
+            messagebox.showerror(
+                "Transfer error",
+                str(error),
+            )
+            return
 
-            messagebox.showinfo(
-                "Transfer complete",
-                message,
+        changed = len(result["changes"])
+        missing = result["missing_in_destination"]
+
+        self.status.set(
+            f"Transfer complete: {changed} value(s) changed."
+        )
+
+        message = (
+            f"Transferred {len(result['transferred'])} variable(s).\n"
+            f"Changed {changed} value(s)."
+        )
+
+        if missing:
+            message += (
+                "\n\nNot found in destination:\n"
+                + ", ".join(missing)
             )
 
-        else:
-            self.status.set(
-                "Transfer finished, but no matching "
-                "destination variables were updated."
-            )
-
-            message = (
-                "No matching destination variables "
-                "were updated."
-            )
-
-            if missing:
-                message += (
-                    "\n\nNot found in destination:\n"
-                    + ", ".join(missing)
-                )
-
-            messagebox.showwarning(
-                "Transfer finished",
-                message,
-            )
+        messagebox.showinfo(
+            "Transfer complete",
+            message,
+            parent=self,
+        )
