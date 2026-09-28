@@ -16,7 +16,7 @@ fclose(fid);"""
 
 custom_lines = custom_block.splitlines()
 
-input_file = "python_variables.py"
+input_file = "python_variables.txt"
 output_file = "matlab_variables.m"
 matlab_script = "matlab_variables"
 
