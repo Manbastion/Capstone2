@@ -1,9 +1,22 @@
+import csv
+import json
+import os
 import re
 from difflib import SequenceMatcher
 
 NUM = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
+
 ASSIGN = re.compile(
     rf"^(\s*)([A-Za-z_]\w*)(\s*=\s*)({NUM})(\s*;?)(\s*(?:[%#].*)?)$"
+)
+
+# Same 6-group layout as ASSIGN so the rebuild code can be shared for
+# "name": value style JSON lines.
+#   1: indent + opening quote      2: key name
+#   3: closing quote + colon       4: number
+#   5: optional trailing comma     6: trailing whitespace
+ASSIGN_JSON = re.compile(
+    rf'^(\s*")([A-Za-z_]\w*)("\s*:\s*)({NUM})(\s*,?)(\s*)$'
 )
 
 
@@ -19,6 +32,29 @@ is_valid_variable_name = valid_name
 is_valid_numeric_value = valid_value
 
 
+def is_json_file(path):
+    return os.path.splitext(str(path))[1].lower() == ".json"
+
+
+def is_csv_file(path):
+    return os.path.splitext(str(path))[1].lower() == ".csv"
+
+
+def _pattern(path):
+    """Line regex for non-CSV formats (CSV is handled separately, row-based)."""
+    return ASSIGN_JSON if is_json_file(path) else ASSIGN
+
+
+def _check_json_output(path, lines):
+    """Refuse to write a .json file that would no longer parse."""
+    if not is_json_file(path):
+        return
+    try:
+        json.loads("".join(lines))
+    except json.JSONDecodeError as error:
+        raise ValueError(f"Edit would produce invalid JSON: {error}") from error
+
+
 def _split(line):
     if line.endswith("\r\n"):
         return line[:-2], "\r\n"
@@ -27,13 +63,123 @@ def _split(line):
     return line, ""
 
 
-def read_variables(path):
-    """Read simple scalar numeric assignments from .py/.m/.txt-style files."""
+# ---------------- CSV helpers ----------------
+# A CSV "variable" is any row shaped like: name,value[,...extra columns].
+# Extra columns are preserved untouched. A header row (e.g. "name,value")
+# is skipped automatically because its value cell isn't numeric.
+
+def _read_variables_csv(path):
     variables = {}
+    with open(path, encoding="utf-8", newline="") as file:
+        for row in csv.reader(file):
+            if len(row) < 2:
+                continue
+            name, value = row[0].strip(), row[1].strip()
+            if valid_name(name) and valid_value(value):
+                variables[name] = value
+    return variables
+
+
+def _write_changes_csv(path, changes, strict):
+    with open(path, encoding="utf-8", newline="") as file:
+        rows = list(csv.reader(file))
+
+    found = set()
+    output_rows = []
+
+    for row in rows:
+        if len(row) < 2:
+            output_rows.append(row)
+            continue
+
+        name, value = row[0].strip(), row[1].strip()
+        if not (valid_name(name) and valid_value(value) and name in changes):
+            output_rows.append(row)
+            continue
+
+        new, new_value = changes[name]
+        new_row = list(row)
+        new_row[0] = new
+        new_row[1] = new_value
+        output_rows.append(new_row)
+        found.add(name)
+
+    missing = sorted(set(changes) - found)
+    if strict and missing:
+        raise ValueError("Could not find: " + ", ".join(missing))
+
+    with open(path, "w", encoding="utf-8", newline="") as file:
+        csv.writer(file).writerows(output_rows)
+
+    return {"updated": sorted(found), "missing": missing}
+
+
+def _transfer_write_csv(output_file, mapping, reverse, source, apply):
+    with open(output_file, encoding="utf-8", newline="") as file:
+        rows = list(csv.reader(file))
+
+    found = set()
+    transferred = []
+    changes = {}
+    output_rows = []
+
+    for row in rows:
+        if len(row) < 2:
+            output_rows.append(row)
+            continue
+
+        destination_name = row[0].strip()
+        old_value = row[1].strip()
+
+        if not (valid_name(destination_name) and valid_value(old_value)):
+            output_rows.append(row)
+            continue
+
+        found.add(destination_name)
+        source_name = reverse.get(destination_name)
+
+        if source_name is None:
+            output_rows.append(row)
+            continue
+
+        new_value = source[source_name]
+        new_row = list(row)
+        new_row[1] = new_value
+        output_rows.append(new_row)
+
+        transferred.append({"source": source_name, "destination": destination_name})
+
+        if old_value != new_value:
+            changes[destination_name] = {
+                "before": old_value,
+                "after": new_value,
+                "source": source_name,
+            }
+
+    missing = sorted(
+        destination_name
+        for source_name, destination_name in mapping.items()
+        if destination_name not in found
+    )
+
+    if apply:
+        with open(output_file, "w", encoding="utf-8", newline="") as file:
+            csv.writer(file).writerows(output_rows)
+
+    return transferred, changes, missing
+
+
+def read_variables(path):
+    """Read simple scalar numeric assignments from .py/.m/.txt, .json or .csv files."""
+    if is_csv_file(path):
+        return _read_variables_csv(path)
+
+    variables = {}
+    pattern = _pattern(path)
     with open(path, encoding="utf-8") as file:
         for line in file:
             text = _split(line)[0]
-            match = ASSIGN.match(text)
+            match = pattern.match(text)
             if match:
                 variables[match.group(2)] = match.group(4)
     return variables
@@ -54,15 +200,19 @@ def _write_changes(path, changes, strict=True):
         if not valid_name(new):
             raise ValueError(f"Invalid variable name: {new!r}")
 
+    if is_csv_file(path):
+        return _write_changes_csv(path, changes, strict)
+
     with open(path, encoding="utf-8") as file:
         lines = file.readlines()
 
+    pattern = _pattern(path)
     found = set()
     output = []
 
     for line in lines:
         text, newline = _split(line)
-        match = ASSIGN.match(text)
+        match = pattern.match(text)
 
         if not match or match.group(2) not in changes:
             output.append(line)
@@ -80,6 +230,8 @@ def _write_changes(path, changes, strict=True):
 
     if strict and missing:
         raise ValueError("Could not find: " + ", ".join(missing))
+
+    _check_json_output(path, output)
 
     with open(path, "w", encoding="utf-8", newline="") as file:
         file.writelines(output)
@@ -245,6 +397,9 @@ def transfer_data(
         {source_name: destination_name}
 
     If mappings is omitted, same-name variables are used.
+
+    input_file / output_file may be .py/.m/.txt, .json or .csv, in any
+    combination.
     """
     source = dict(source_variables or read_variables(input_file))
 
@@ -293,9 +448,21 @@ def transfer_data(
             )
         reverse[destination_name] = source_name
 
+    if is_csv_file(output_file):
+        transferred, changes, missing = _transfer_write_csv(
+            output_file, mapping, reverse, source, apply
+        )
+        return {
+            "transferred": transferred,
+            "changes": changes,
+            "missing_in_destination": missing,
+            "mappings": mapping,
+        }
+
     with open(output_file, encoding="utf-8") as file:
         lines = file.readlines()
 
+    pattern = _pattern(output_file)
     found = set()
     transferred = []
     changes = {}
@@ -303,7 +470,7 @@ def transfer_data(
 
     for line in lines:
         text, newline = _split(line)
-        match = ASSIGN.match(text)
+        match = pattern.match(text)
 
         if not match:
             output.append(line)
@@ -347,6 +514,7 @@ def transfer_data(
     )
 
     if apply:
+        _check_json_output(output_file, output)
         with open(output_file, "w", encoding="utf-8", newline="") as file:
             file.writelines(output)
 
