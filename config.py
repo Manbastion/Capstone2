@@ -6,7 +6,7 @@ from fuzzy_algorithm import best_fuzzy_match, name_similarity, similarity_label
 
 
 class ConfigEditor(tk.Toplevel):
-    def __init__(self, parent, source_variables, destination_variables, on_save):
+    def __init__(self, parent, source_variables, destination_variables, on_save, saved_selected=None, saved_mappings=None):
         super().__init__(parent)
         self.title("Transfer Configuration")
         self.minsize(1050, 650)
@@ -20,12 +20,17 @@ class ConfigEditor(tk.Toplevel):
         self.rows = {}
         self.editor = None
         self.edit_cell = None
+        self.saved_selected = None if saved_selected is None else set(saved_selected)
+        self.saved_mappings = dict(saved_mappings or {})
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(2, weight=1)
         self._build()
         self._populate()
-        self._auto_match()
+        if self.saved_mappings:
+            self._restore_saved()
+        else:
+            self._auto_match()
 
     def _build(self):
         header = ttk.Frame(self, padding=12)
@@ -102,11 +107,33 @@ class ConfigEditor(tk.Toplevel):
                 "original_source": source_name,
                 "source": source_name,
                 "source_value": source_value,
-                "selected": True,
+                "selected": (
+                    True if self.saved_selected is None
+                    else source_name in self.saved_selected
+                ),
                 "destination": None,
                 "score": 0.0,
             }
         self._refresh_rows()
+
+    def _restore_saved(self):
+        linked = 0
+
+        for row in self.rows.values():
+            destination = self.saved_mappings.get(row["source"])
+
+            if destination in self.destination_variables:
+                row["destination"] = destination
+                row["score"] = name_similarity(row["source"], destination)
+                linked += 1
+            else:
+                row["destination"] = None
+                row["score"] = 0.0
+
+        self._refresh_rows()
+        self.status.set(
+            f"Loaded last saved configuration ({linked} link(s))."
+        )
 
     def _auto_match(self):
         used = set()

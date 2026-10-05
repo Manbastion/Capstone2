@@ -1,4 +1,6 @@
 import os
+import json
+from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
@@ -7,6 +9,7 @@ from history import HistoryWindow, record_transfer
 from variable_transfer_v2 import read_variables, transfer_data, update_source_variables
 
 MODES = ["All Variables", "Include Variables", "Exclude Variables"]
+STATE_FILE = Path(__file__).resolve().with_name("config_state.json")
 BACKEND = {
     "All Variables": "everything",
     "Include Variables": "include",
@@ -33,7 +36,9 @@ class VariableTransferGUI(tk.Tk):
         self.config_signature = None
 
         self._ui()
-        self._mode()
+        self.protocol("WM_DELETE_WINDOW", self._close)
+        if not self._restore_state():
+            self._mode(reset=False)
 
     def _ui(self):
         main = ttk.Frame(self, padding=14)
@@ -183,6 +188,7 @@ class VariableTransferGUI(tk.Tk):
             self.source.set(path)
             self._reset_configuration()
             self._load()
+            self._save_state()
 
             if self.destination.get().strip():
                 self._config()
@@ -196,6 +202,7 @@ class VariableTransferGUI(tk.Tk):
             self.status.set(
                 f"Destination: {os.path.basename(path)}"
             )
+            self._save_state()
 
             # Open the large configuration menu as soon as both files exist.
             if os.path.isfile(self.source.get().strip()):
@@ -250,14 +257,80 @@ class VariableTransferGUI(tk.Tk):
             for index in self.list.curselection()
         ]
 
-    def _mode(self):
+    def _mode(self, reset=True):
         if self.mode.get() == "All Variables":
             self.var_frame.grid_remove()
         else:
             self.var_frame.grid()
             self._load()
 
-        self._reset_configuration()
+        if reset:
+            self._reset_configuration()
+            self._save_state()
+
+    def _save_state(self):
+        state = {
+            "source": self.source.get().strip(),
+            "destination": self.destination.get().strip(),
+            "mode": self.mode.get(),
+            "selected": self.config_selected,
+            "mappings": self.config_mappings,
+        }
+        try:
+            STATE_FILE.write_text(json.dumps(state, indent=2), encoding="utf-8")
+        except OSError:
+            pass
+
+    def _restore_state(self):
+        if not STATE_FILE.exists():
+            return False
+
+        try:
+            state = json.loads(STATE_FILE.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return False
+
+        self.source.set(state.get("source", ""))
+        self.destination.set(state.get("destination", ""))
+        self.mode.set(state.get("mode") if state.get("mode") in MODES else MODES[0])
+
+        source = self._variables()
+        destination = self._destination_variables()
+
+        selected = [
+            name for name in state.get("selected", [])
+            if name in source
+        ]
+        mappings = {
+            source_name: destination_name
+            for source_name, destination_name in state.get("mappings", {}).items()
+            if source_name in source and destination_name in destination
+        }
+
+        self.config_selected = selected
+        self.config_mappings = mappings
+        self.config_signature = (
+            self._current_signature()
+            if selected and mappings
+            else None
+        )
+
+        self._mode(reset=False)
+        self._load()
+
+        if self.config_signature:
+            self.status.set(
+                f"Last saved state restored: {len(selected)} variable(s), "
+                f"{len(mappings)} link(s)."
+            )
+        elif self.source.get() or self.destination.get():
+            self.status.set("Previous files restored. Configuration needs review.")
+
+        return True
+
+    def _close(self):
+        self._save_state()
+        self.destroy()
 
     def _reset_configuration(self):
         self.config_selected = []
@@ -293,11 +366,15 @@ class VariableTransferGUI(tk.Tk):
             )
             return
 
+        saved = self.config_signature == self._current_signature()
+
         ConfigEditor(
             self,
             source,
             destination,
             self._save_config,
+            self.config_selected if saved else None,
+            self.config_mappings if saved else None,
         )
 
     def _save_config(self, selected, mappings, source_changes):
@@ -311,6 +388,7 @@ class VariableTransferGUI(tk.Tk):
         self.config_mappings = dict(mappings)
         self.config_signature = self._current_signature()
         self._load()
+        self._save_state()
 
         self.status.set(
             f"Configuration saved: {len(selected)} variable(s) selected, "

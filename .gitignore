@@ -20,3 +20,4 @@ Thumbs.db
 
 # Environment Variables 
 .env
+config_state.json
