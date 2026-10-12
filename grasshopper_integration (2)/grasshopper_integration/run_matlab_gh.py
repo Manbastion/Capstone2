@@ -15,7 +15,7 @@ Differences, because Grasshopper calls it:
 Uses only the standard library, so it works in any Python 3.
 
 From a terminal:
-    python run_matlab_gh.py "C:\\path\\to\\matlab_variables.m" [path\\to\\matlab.exe]
+    python run_matlab_gh.py "C:\\path\\to\\matlab_variables.m" [path\\to\\matlab.exe] [timeout_seconds]
 Output is written to matlab_output_variables.txt next to the .m file.
 """
 import os
@@ -84,7 +84,8 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit(__doc__)
     try:
-        print(run(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "matlab"))
+        print(run(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "matlab",
+                  float(sys.argv[3]) if len(sys.argv) > 3 else 600))
     except Exception as error:
         print(error, file=sys.stderr)
         sys.exit(1)

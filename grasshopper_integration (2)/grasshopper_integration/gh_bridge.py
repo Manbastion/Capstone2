@@ -20,12 +20,22 @@ import os
 import re
 import subprocess
 import sys
+import time
+from pathlib import Path
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
+# Support the checked-in nested layout as well as the older flat installation.
+for parent in Path(HERE).parents:
+    if (parent / "variable_transfer_v2.py").is_file():
+        if str(parent) not in sys.path:
+            sys.path.insert(0, str(parent))
+        break
+
 from variable_transfer_v2 import transfer_data, valid_name, valid_value  # noqa: E402
+from habsim_notifications import notify_completion  # noqa: E402
 
 # Persistent folder (not %TEMP%, which Windows may clean up).
 WORK_DIR = os.path.join(os.path.expanduser("~"), "CapstoneGH")
@@ -199,7 +209,28 @@ _LINE = re.compile(r"^\s*([A-Za-z_]\w*)\s*=\s*(.+?)\s*$")
 _SCALAR = re.compile(r"^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$")
 
 
-def run_matlab(matlab_file, matlab_exe="matlab", timeout=600, python_exe=None):
+def run_matlab(matlab_file, matlab_exe="matlab", timeout=600, python_exe=None,
+               notify=True):
+    """Run and read results, then queue one completion/failure alert.
+
+    Notifications do not wait for delivery and cannot change the run outcome.
+    For an outer loop, select 'whole loop' in notification settings and use
+    Block 4's final signal. Per-run alerts are then suppressed automatically.
+    """
+    started = time.monotonic()
+    try:
+        names, values = _run_matlab(matlab_file, matlab_exe, timeout, python_exe)
+    except Exception:
+        if notify:
+            notify_completion(success=False, elapsed_seconds=time.monotonic() - started)
+        raise
+    if notify:
+        notify_completion(elapsed_seconds=time.monotonic() - started,
+                          variable_count=len(names))
+    return names, values
+
+
+def _run_matlab(matlab_file, matlab_exe="matlab", timeout=600, python_exe=None):
     """Run the .m file via run_matlab_gh.py. Returns (names, values).
 
     python_exe=None  -> run in this process (no extra python needed)
@@ -210,11 +241,14 @@ def run_matlab(matlab_file, matlab_exe="matlab", timeout=600, python_exe=None):
     matlab_file = os.path.abspath(matlab_file)
 
     if python_exe:
-        proc = subprocess.run([python_exe, RUN_SCRIPT, matlab_file, matlab_exe],
+        proc = subprocess.run([python_exe, RUN_SCRIPT, matlab_file, matlab_exe, str(timeout)],
                               capture_output=True, text=True, timeout=timeout + 30)
         if proc.returncode != 0:
             raise RuntimeError((proc.stderr or proc.stdout).strip()[-1500:])
-        out_file = proc.stdout.strip().splitlines()[-1]
+        lines = proc.stdout.strip().splitlines()
+        if not lines:
+            raise RuntimeError("MATLAB runner returned no output path.")
+        out_file = lines[-1]
     else:
         import run_matlab_gh
         out_file = run_matlab_gh.run(matlab_file, matlab_exe, timeout)

@@ -1,5 +1,12 @@
 # Grasshopper ↔ MATLAB Variable Transfer: Setup Guide
 
+> **Notification update:** keep the integration in its checked-in folder and use
+> the Capstone2 project root as `Repo`. The updated block scripts find the nested
+> modules automatically; the older “all in the same folder” instruction below is
+> no longer needed. Re-paste the current block source into existing definitions.
+> See the repository-root `NOTIFICATIONS.md` for desktop/phone alerts and the
+> optional final-loop block. The GUI now includes **Notifications…**.
+
 This tool moves variables from Grasshopper into a MATLAB script, runs the script, and brings the results back into Grasshopper. It is made of three Grasshopper blocks:
 
 | Block | What it does |

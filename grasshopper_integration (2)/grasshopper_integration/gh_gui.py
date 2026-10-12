@@ -20,6 +20,11 @@ from tkinter import ttk, messagebox
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
+for parent in Path(HERE).parents:
+    if (parent / "gui.py").is_file():
+        if str(parent) not in sys.path:
+            sys.path.insert(0, str(parent))
+        break
 
 import gui  # noqa: E402  (the existing window)
 from gh_bridge import compose_renames  # noqa: E402
