@@ -21,12 +21,16 @@ OUTPUTS
   Status      str
 """
 import sys
+from pathlib import Path
 import Grasshopper as gh
 
 Config, Status = None, ""
 try:
-    if Repo and Repo not in sys.path:
-        sys.path.insert(0, str(Repo))
+    root = Path(str(Repo)).expanduser().resolve()
+    integration = root / "grasshopper_integration (2)" / "grasshopper_integration"
+    for folder in (root, integration):
+        if folder.is_dir() and str(folder) not in sys.path:
+            sys.path.insert(0, str(folder))
     import importlib, gh_bridge
     importlib.reload(gh_bridge)          # pick up edits without restarting Rhino
 
