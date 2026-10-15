@@ -1,35 +1,101 @@
 [
   {
-    "id": "9dfa6cfadee04147a60b3a551476cd4a",
-    "timestamp": "2026-10-11T19:50:56",
-    "source_file": "C:\\Users\\tarus\\Desktop\\ICT Capstone\\Capstone2\\python_variables.txt",
-    "destination_file": "C:\\Users\\tarus\\Desktop\\ICT Capstone\\Capstone2\\matlab_variables.m",
-    "source_name": "python_variables.txt",
-    "destination_name": "matlab_variables.m",
-    "mode": "All Variables",
+    "id": "4154897461844121ae494d58c8268bcd",
+    "timestamp": "2026-10-15T17:44:54",
+    "source_file": "/home/tommy/year4/Sem2/Capstone/Capstone2/test_source.py",
+    "destination_file": "/home/tommy/year4/Sem2/Capstone/Capstone2/test_destination.m",
+    "source_name": "test_source.py",
+    "destination_name": "test_destination.m",
+    "mode": "Include Variables",
     "selected_variables": [
-      "v0",
-      "a"
+      "battery",
+      "impact_velocity",
+      "wall_thickness",
+      "launch_angle",
+      "air_pressure",
+      "solar_power",
+      "temperature"
     ],
     "transferred_variables": [
       {
-        "source": "v0",
-        "destination": "v0"
+        "source": "battery",
+        "destination": "battry",
+        "before": "95",
+        "after": "100",
+        "value": "100"
       },
       {
-        "source": "a",
-        "destination": "a"
+        "source": "impact_velocity",
+        "destination": "impactVelocity",
+        "before": "1250",
+        "after": "1250",
+        "value": "1250"
+      },
+      {
+        "source": "wall_thickness",
+        "destination": "wallThickness",
+        "before": "0.08",
+        "after": "0.08",
+        "value": "0.08"
+      },
+      {
+        "source": "launch_angle",
+        "destination": "launch_angl",
+        "before": "45",
+        "after": "45",
+        "value": "45"
+      },
+      {
+        "source": "air_pressure",
+        "destination": "airPress",
+        "before": "101325",
+        "after": "6",
+        "value": "6"
+      },
+      {
+        "source": "solar_power",
+        "destination": "solarPwr",
+        "before": "2500",
+        "after": "[1, 1, 2, 3]",
+        "value": "[1, 1, 2, 3]"
+      },
+      {
+        "source": "temperature",
+        "destination": "temperature",
+        "before": "295.15",
+        "after": "\"yes\"",
+        "value": "\"yes\""
       }
     ],
     "mappings": {
-      "v0": "v0",
-      "a": "a"
+      "battery": "battry",
+      "impact_velocity": "impactVelocity",
+      "wall_thickness": "wallThickness",
+      "launch_angle": "launch_angl",
+      "air_pressure": "airPress",
+      "solar_power": "solarPwr",
+      "temperature": "temperature"
     },
     "changes": {
-      "v0": {
-        "before": "12",
-        "after": "0",
-        "source": "v0"
+      "battry": {
+        "before": "95",
+        "after": "100",
+        "source": "battery"
+      },
+      "airPress": {
+        "before": "101325",
+        "after": "6",
+        "source": "air_pressure"
+      },
+      "solarPwr": {
+        "before": "2500",
+        "after": "[1, 1, 2, 3]",
+        "source": "solar_power"
+      },
+      "temperature": {
+        "before": "295.15",
+        "after": "\"yes\"",
+        "source": "temperature"
       }
     },
     "reverted_at": null

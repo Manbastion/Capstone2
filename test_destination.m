@@ -1,13 +1,13 @@
 % Test destination file for fuzzy variable matching
 % Deliberately contains slightly different names.
 
-battry = 95;
+battry = 100;
 impactVelocity = 1250;
 wallThickness = 0.08;
 launch_angl = 45;
-airPress = 101325;
-solarPwr = 2500;
-temperature = 295.15;
+airPress = 6;
+solarPwr = [1, 1, 2, 3];
+temperature = "yes";
 unchanged_value = 42;
 
 % This should remain untouched.

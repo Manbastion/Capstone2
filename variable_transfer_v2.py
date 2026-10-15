@@ -1,57 +1,196 @@
-import csv
+import ast
 import json
-import os
 import re
 
 NUM = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
-
-ASSIGN = re.compile(
-    rf"^(\s*)([A-Za-z_]\w*)(\s*=\s*)({NUM})(\s*;?)(\s*(?:[%#].*)?)$"
-)
-
-# Same 6-group layout as ASSIGN so the rebuild code can be shared for
-# "name": value style JSON lines.
-#   1: indent + opening quote      2: key name
-#   3: closing quote + colon       4: number
-#   5: optional trailing comma     6: trailing whitespace
-ASSIGN_JSON = re.compile(
-    rf'^(\s*")([A-Za-z_]\w*)("\s*:\s*)({NUM})(\s*,?)(\s*)$'
-)
+NAME = re.compile(r"[A-Za-z_]\w*")
+ASSIGN_HEAD = re.compile(r"^(\s*)([A-Za-z_]\w*)(\s*=\s*)(.*)$")
 
 
 def valid_name(value):
-    return bool(re.fullmatch(r"[A-Za-z_]\w*", str(value).strip()))
+    return bool(NAME.fullmatch(str(value).strip()))
+
+
+def _format_atom(value):
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return str(value)
+    if isinstance(value, str):
+        return json.dumps(value)
+    raise ValueError(f"Unsupported array element: {value!r}")
+
+
+def _format_sequence(value):
+    if not isinstance(value, (list, tuple)):
+        raise ValueError("Expected a list or tuple.")
+
+    if value and all(isinstance(item, (list, tuple)) for item in value):
+        widths = {len(item) for item in value}
+        if len(widths) != 1:
+            raise ValueError("Nested arrays must have equal row lengths.")
+        rows = [", ".join(_format_atom(item) for item in row) for row in value]
+        return "[" + "; ".join(rows) + "]"
+
+    return "[" + ", ".join(_format_atom(item) for item in value) + "]"
+
+
+def _balanced_brackets(value):
+    pairs = {"]": "[", ")": "(", "}": "{"}
+    stack = []
+    quote = None
+    escaped = False
+
+    for char in value:
+        if quote:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            continue
+
+        if char in "'\"":
+            quote = char
+        elif char in "[({":
+            stack.append(char)
+        elif char in "]) }".replace(" ", ""):
+            if not stack or stack.pop() != pairs[char]:
+                return False
+
+    return not stack and quote is None
+
+
+def _split_top_level_commas(value):
+    parts = []
+    start = 0
+    depth = 0
+    quote = None
+    escaped = False
+
+    for index, char in enumerate(value):
+        if quote:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            continue
+
+        if char in "'\"":
+            quote = char
+        elif char in "[({":
+            depth += 1
+        elif char in ")]}":
+            depth = max(0, depth - 1)
+        elif char == "," and depth == 0:
+            parts.append(value[start:index].strip())
+            start = index + 1
+
+    if parts:
+        parts.append(value[start:].strip())
+    return parts
+
+
+def _valid_array_item(value):
+    value = value.strip()
+    if not value:
+        return False
+    if re.fullmatch(NUM, value):
+        return True
+    if valid_name(value):
+        return True
+    if value[0:1] in ("'", '"') and value[-1:] == value[0:1]:
+        try:
+            return isinstance(ast.literal_eval(value), str)
+        except (ValueError, SyntaxError):
+            return False
+    return False
+
+
+def normalise_value(value):
+    """
+    Convert a supported value to text suitable for the bridge/MATLAB file.
+
+    Supported values:
+      - scalar numbers: 12, -3.5, 1e-4
+      - quoted strings: "lunar base", 'ready'
+      - arrays/lists: [1, 2], ["x", "y"]
+      - simple comma-separated Grasshopper values: 1, 2 -> [1, 2]
+
+    Existing MATLAB bracket expressions such as [0:5:100] are retained.
+    """
+    if isinstance(value, (list, tuple)):
+        return _format_sequence(value)
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return str(value)
+
+    text = str(value).strip()
+    if not text or "\n" in text or "\r" in text:
+        raise ValueError(f"Unsupported value: {value!r}")
+
+    if re.fullmatch(NUM, text):
+        return text
+
+    if text[0:1] in ("'", '"') and text[-1:] == text[0:1]:
+        try:
+            parsed = ast.literal_eval(text)
+        except (ValueError, SyntaxError):
+            # MATLAB strings may use quoting rules that Python cannot parse.
+            if _balanced_brackets(text):
+                return text
+            raise ValueError(f"Invalid string value: {value!r}")
+        if isinstance(parsed, str):
+            return text
+
+    if text.startswith(("[", "(")) and text.endswith(("]", ")")):
+        try:
+            parsed = ast.literal_eval(text)
+            if isinstance(parsed, (list, tuple)):
+                return _format_sequence(parsed)
+        except (ValueError, SyntaxError):
+            pass
+
+        # Keep valid MATLAB array expressions such as [1 2] or [0:5:100].
+        if text.startswith("[") and text.endswith("]") and _balanced_brackets(text):
+            return text
+
+    parts = _split_top_level_commas(text)
+    if len(parts) >= 2 and all(_valid_array_item(part) for part in parts):
+        # Grasshopper often exposes list-like data as "x, y". MATLAB expects
+        # an array expression, so normalise it to "[x, y]".
+        return "[" + ", ".join(parts) + "]"
+
+    if text.lower() in {"true", "false"}:
+        return text.lower()
+    if text in {"NaN", "Inf", "-Inf"}:
+        return text
+
+    # Plain Grasshopper text such as ready or lunar base is treated as a
+    # string and written with quotes so MATLAB receives a string literal.
+    if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_ .-]*", text):
+        return json.dumps(text)
+
+    raise ValueError(
+        "Unsupported value. Use a number, quoted string, or array/list. "
+        "Examples: 12.5, \"ready\", [1, 2], or 1, 2."
+    )
 
 
 def valid_value(value):
-    return bool(re.fullmatch(NUM, str(value).strip()))
+    try:
+        normalise_value(value)
+        return True
+    except (TypeError, ValueError):
+        return False
 
 
 is_valid_variable_name = valid_name
-is_valid_numeric_value = valid_value
-
-
-def is_json_file(path):
-    return os.path.splitext(str(path))[1].lower() == ".json"
-
-
-def is_csv_file(path):
-    return os.path.splitext(str(path))[1].lower() == ".csv"
-
-
-def _pattern(path):
-    """Line regex for non-CSV formats (CSV is handled separately, row-based)."""
-    return ASSIGN_JSON if is_json_file(path) else ASSIGN
-
-
-def _check_json_output(path, lines):
-    """Refuse to write a .json file that would no longer parse."""
-    if not is_json_file(path):
-        return
-    try:
-        json.loads("".join(lines))
-    except json.JSONDecodeError as error:
-        raise ValueError(f"Edit would produce invalid JSON: {error}") from error
+is_valid_numeric_value = lambda value: bool(re.fullmatch(NUM, str(value).strip()))
 
 
 def _split(line):
@@ -62,175 +201,255 @@ def _split(line):
     return line, ""
 
 
-# ---------------- CSV helpers ----------------
-# A CSV "variable" is any row shaped like: name,value[,...extra columns].
-# Extra columns are preserved untouched. A header row (e.g. "name,value")
-# is skipped automatically because its value cell isn't numeric.
+def _split_comment(text):
+    quote = None
+    escaped = False
 
-def _read_variables_csv(path):
+    for index, char in enumerate(text):
+        if quote:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            continue
+
+        if char in "'\"":
+            quote = char
+        elif char in "#%":
+            return text[:index], text[index:]
+
+    return text, ""
+
+
+def _parse_assignment(text):
+    match = ASSIGN_HEAD.match(text)
+    if not match:
+        return None
+
+    code, comment = _split_comment(match.group(4))
+    code_without_trailing = code.rstrip()
+    trailing = code[len(code_without_trailing):]
+    terminator = ""
+
+    if code_without_trailing.endswith(";"):
+        terminator = ";"
+        code_without_trailing = code_without_trailing[:-1].rstrip()
+
+    raw_value = code_without_trailing.strip()
+    if not raw_value:
+        return None
+
+    try:
+        value = normalise_value(raw_value)
+    except ValueError:
+        return None
+
+    return {
+        "indent": match.group(1),
+        "name": match.group(2),
+        "separator": match.group(3),
+        "value": value,
+        "terminator": terminator,
+        "trailing": trailing,
+        "comment": comment,
+    }
+
+
+
+def _json_native_value(value):
+    """Convert bridge-normalised text back to a JSON-compatible Python value."""
+    normalised = normalise_value(value)
+
+    if normalised == "true":
+        return True
+    if normalised == "false":
+        return False
+    if normalised == "NaN":
+        return "NaN"
+    if normalised == "Inf":
+        return "Inf"
+    if normalised == "-Inf":
+        return "-Inf"
+
+    if re.fullmatch(NUM, normalised):
+        try:
+            return int(normalised)
+        except ValueError:
+            return float(normalised)
+
+    if normalised.startswith('"') and normalised.endswith('"'):
+        try:
+            return json.loads(normalised)
+        except json.JSONDecodeError:
+            return normalised
+
+    if normalised.startswith("[") and normalised.endswith("]"):
+        try:
+            parsed = ast.literal_eval(normalised)
+            if isinstance(parsed, (list, tuple)):
+                return list(parsed)
+        except (ValueError, SyntaxError):
+            # MATLAB-only array expressions are kept as text if they cannot
+            # be represented directly in JSON.
+            return normalised
+
+    return normalised
+
+
+def _read_json_variables(path):
+    with open(path, encoding="utf-8") as file:
+        data = json.load(file)
+
     variables = {}
-    with open(path, encoding="utf-8", newline="") as file:
-        for row in csv.reader(file):
-            if len(row) < 2:
+
+    # History-export JSON:
+    # {"format": ..., "values": [{"source": "x", "value": 1}, ...]}
+    if isinstance(data, dict) and isinstance(data.get("values"), list):
+        for row in data["values"]:
+            if not isinstance(row, dict):
                 continue
-            name, value = row[0].strip(), row[1].strip()
-            if valid_name(name) and valid_value(value):
-                variables[name] = value
-    return variables
+            name = str(row.get("source") or row.get("destination") or "").strip()
+            value = row.get("value", row.get("after"))
+            if valid_name(name) and value is not None:
+                variables[name] = normalise_value(value)
+        return variables
+
+    # Simple JSON source:
+    # {"temperature": 295, "status": "ready", "point": [1, 2]}
+    if isinstance(data, dict):
+        for name, value in data.items():
+            if name in {"format", "version", "transfer"}:
+                continue
+            if valid_name(name):
+                variables[name] = normalise_value(value)
+        return variables
+
+    raise ValueError(
+        "JSON source must be an object of variable/value pairs or a "
+        "Grasshopper-HabSim exported history JSON file."
+    )
 
 
-def _write_changes_csv(path, changes, strict):
-    with open(path, encoding="utf-8", newline="") as file:
-        rows = list(csv.reader(file))
+def _update_json_variables(path, changes, strict=True):
+    with open(path, encoding="utf-8") as file:
+        data = json.load(file)
+
+    cleaned = {}
+    for old, (new, value) in changes.items():
+        old = str(old).strip()
+        new = str(new).strip()
+        if not valid_name(old):
+            raise ValueError(f"Invalid variable name: {old!r}")
+        if not valid_name(new):
+            raise ValueError(f"Invalid variable name: {new!r}")
+        cleaned[old] = (new, _json_native_value(value))
 
     found = set()
-    output_rows = []
 
-    for row in rows:
-        if len(row) < 2:
-            output_rows.append(row)
-            continue
+    if isinstance(data, dict) and isinstance(data.get("values"), list):
+        for row in data["values"]:
+            if not isinstance(row, dict):
+                continue
+            old = str(row.get("source") or "").strip()
+            if old not in cleaned:
+                continue
 
-        name, value = row[0].strip(), row[1].strip()
-        if not (valid_name(name) and valid_value(value) and name in changes):
-            output_rows.append(row)
-            continue
+            new, value = cleaned[old]
+            row["source"] = new
+            row["value"] = value
+            row["after"] = value
+            found.add(old)
 
-        new, new_value = changes[name]
-        new_row = list(row)
-        new_row[0] = new
-        new_row[1] = new_value
-        output_rows.append(new_row)
-        found.add(name)
+    elif isinstance(data, dict):
+        rebuilt = {}
+        for key, value in data.items():
+            if key in cleaned:
+                new, new_value = cleaned[key]
+                rebuilt[new] = new_value
+                found.add(key)
+            else:
+                rebuilt[key] = value
+        data = rebuilt
 
-    missing = sorted(set(changes) - found)
+    else:
+        raise ValueError(
+            "JSON source must be an object of variable/value pairs or a "
+            "Grasshopper-HabSim exported history JSON file."
+        )
+
+    missing = sorted(set(cleaned) - found)
     if strict and missing:
         raise ValueError("Could not find: " + ", ".join(missing))
 
-    with open(path, "w", encoding="utf-8", newline="") as file:
-        csv.writer(file).writerows(output_rows)
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=2)
+        file.write("\n")
 
     return {"updated": sorted(found), "missing": missing}
 
-
-def _transfer_write_csv(output_file, mapping, reverse, source, apply):
-    with open(output_file, encoding="utf-8", newline="") as file:
-        rows = list(csv.reader(file))
-
-    found = set()
-    transferred = []
-    changes = {}
-    output_rows = []
-
-    for row in rows:
-        if len(row) < 2:
-            output_rows.append(row)
-            continue
-
-        destination_name = row[0].strip()
-        old_value = row[1].strip()
-
-        if not (valid_name(destination_name) and valid_value(old_value)):
-            output_rows.append(row)
-            continue
-
-        found.add(destination_name)
-        source_name = reverse.get(destination_name)
-
-        if source_name is None:
-            output_rows.append(row)
-            continue
-
-        new_value = source[source_name]
-        new_row = list(row)
-        new_row[1] = new_value
-        output_rows.append(new_row)
-
-        transferred.append({"source": source_name, "destination": destination_name})
-
-        if old_value != new_value:
-            changes[destination_name] = {
-                "before": old_value,
-                "after": new_value,
-                "source": source_name,
-            }
-
-    missing = sorted(
-        destination_name
-        for source_name, destination_name in mapping.items()
-        if destination_name not in found
-    )
-
-    if apply:
-        with open(output_file, "w", encoding="utf-8", newline="") as file:
-            csv.writer(file).writerows(output_rows)
-
-    return transferred, changes, missing
-
-
 def read_variables(path):
-    """Read simple scalar numeric assignments from .py/.m/.txt, .json or .csv files."""
-    if is_csv_file(path):
-        return _read_variables_csv(path)
+    """Read supported variables from text-based files or JSON source files."""
+    if str(path).lower().endswith(".json"):
+        return _read_json_variables(path)
 
     variables = {}
-    pattern = _pattern(path)
     with open(path, encoding="utf-8") as file:
         for line in file:
-            text = _split(line)[0]
-            match = pattern.match(text)
-            if match:
-                variables[match.group(2)] = match.group(4)
+            parsed = _parse_assignment(_split(line)[0])
+            if parsed:
+                variables[parsed["name"]] = parsed["value"]
     return variables
 
 
 def _check(name, value):
     if not valid_name(name):
         raise ValueError(f"Invalid variable name: {name!r}")
-    if not valid_value(value):
-        raise ValueError(
-            f"Invalid numeric value for {name}: {value!r}"
-        )
+    return normalise_value(value)
 
 
 def _write_changes(path, changes, strict=True):
+    if str(path).lower().endswith(".json"):
+        return _update_json_variables(path, changes, strict)
+
+    cleaned = {}
     for old, (new, value) in changes.items():
-        _check(old, value)
+        value = _check(old, value)
         if not valid_name(new):
             raise ValueError(f"Invalid variable name: {new!r}")
-
-    if is_csv_file(path):
-        return _write_changes_csv(path, changes, strict)
+        cleaned[old] = (new, value)
 
     with open(path, encoding="utf-8") as file:
         lines = file.readlines()
 
-    pattern = _pattern(path)
     found = set()
     output = []
 
     for line in lines:
         text, newline = _split(line)
-        match = pattern.match(text)
+        parsed = _parse_assignment(text)
 
-        if not match or match.group(2) not in changes:
+        if not parsed or parsed["name"] not in cleaned:
             output.append(line)
             continue
 
-        old = match.group(2)
-        new, value = changes[old]
+        old = parsed["name"]
+        new, value = cleaned[old]
+        suffix = (
+            parsed["terminator"]
+            + parsed["trailing"]
+            + parsed["comment"]
+        )
         output.append(
-            f"{match.group(1)}{new}{match.group(3)}{value}"
-            f"{match.group(5)}{match.group(6)}{newline}"
+            f"{parsed['indent']}{new}{parsed['separator']}{value}{suffix}{newline}"
         )
         found.add(old)
 
-    missing = sorted(set(changes) - found)
+    missing = sorted(set(cleaned) - found)
 
     if strict and missing:
         raise ValueError("Could not find: " + ", ".join(missing))
-
-    _check_json_output(path, output)
 
     with open(path, "w", encoding="utf-8", newline="") as file:
         file.writelines(output)
@@ -241,7 +460,7 @@ def _write_changes(path, changes, strict=True):
 def set_variable_values(path, values, strict=False):
     return _write_changes(
         path,
-        {key: (key, str(value).strip()) for key, value in values.items()},
+        {key: (key, normalise_value(value)) for key, value in values.items()},
         strict,
     )
 
@@ -255,7 +474,7 @@ def update_source_variables(path, changes):
     data = {
         str(old).strip(): (
             str(value["name"]).strip(),
-            str(value["value"]).strip(),
+            normalise_value(value["value"]),
         )
         for old, value in changes.items()
     }
@@ -282,17 +501,16 @@ def transfer_data(
         {source_name: destination_name}
 
     If mappings is omitted, same-name variables are used.
-
-    input_file / output_file may be .py/.m/.txt, .json or .csv, in any
-    combination.
     """
     source = dict(source_variables or read_variables(input_file))
 
     if not source:
         raise ValueError("No supported variables found in source file.")
 
-    for name, value in source.items():
-        _check(name, value)
+    source = {
+        name: _check(name, value)
+        for name, value in source.items()
+    }
 
     selected = set(selected_variables or [])
 
@@ -308,12 +526,10 @@ def transfer_data(
     destination_variables = read_variables(output_file)
     mapping = dict(mappings or {})
 
-    # Default exact-name mapping when the user has not supplied one.
     for source_name in wanted:
         if source_name not in mapping and source_name in destination_variables:
             mapping[source_name] = source_name
 
-    # Only transfer variables that were actually requested.
     mapping = {
         source_name: destination_name
         for source_name, destination_name in mapping.items()
@@ -333,21 +549,9 @@ def transfer_data(
             )
         reverse[destination_name] = source_name
 
-    if is_csv_file(output_file):
-        transferred, changes, missing = _transfer_write_csv(
-            output_file, mapping, reverse, source, apply
-        )
-        return {
-            "transferred": transferred,
-            "changes": changes,
-            "missing_in_destination": missing,
-            "mappings": mapping,
-        }
-
     with open(output_file, encoding="utf-8") as file:
         lines = file.readlines()
 
-    pattern = _pattern(output_file)
     found = set()
     transferred = []
     changes = {}
@@ -355,15 +559,14 @@ def transfer_data(
 
     for line in lines:
         text, newline = _split(line)
-        match = pattern.match(text)
+        parsed = _parse_assignment(text)
 
-        if not match:
+        if not parsed:
             output.append(line)
             continue
 
-        destination_name = match.group(2)
+        destination_name = parsed["name"]
         found.add(destination_name)
-
         source_name = reverse.get(destination_name)
 
         if source_name is None:
@@ -371,17 +574,25 @@ def transfer_data(
             continue
 
         new_value = source[source_name]
-        old_value = match.group(4)
+        old_value = parsed["value"]
+        suffix = (
+            parsed["terminator"]
+            + parsed["trailing"]
+            + parsed["comment"]
+        )
 
         output.append(
-            f"{match.group(1)}{destination_name}{match.group(3)}"
-            f"{new_value}{match.group(5)}{match.group(6)}{newline}"
+            f"{parsed['indent']}{destination_name}{parsed['separator']}"
+            f"{new_value}{suffix}{newline}"
         )
 
         transferred.append(
             {
                 "source": source_name,
                 "destination": destination_name,
+                "before": old_value,
+                "after": new_value,
+                "value": new_value,
             }
         )
 
@@ -399,7 +610,6 @@ def transfer_data(
     )
 
     if apply:
-        _check_json_output(output_file, output)
         with open(output_file, "w", encoding="utf-8", newline="") as file:
             file.writelines(output)
 

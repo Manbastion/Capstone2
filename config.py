@@ -79,8 +79,8 @@ class ConfigEditor(tk.Toplevel):
             "confidence": "Confidence",
         }
         widths = {
-            "transfer": 70, "source": 190, "source_value": 120,
-            "destination": 210, "destination_value": 120,
+            "transfer": 70, "source": 190, "source_value": 180,
+            "destination": 210, "destination_value": 180,
             "score": 90, "confidence": 110,
         }
         for column in columns:
@@ -253,7 +253,11 @@ class ConfigEditor(tk.Toplevel):
             row["score"] = 0.0
         else:
             if not valid_value(value):
-                messagebox.showerror("Invalid value", f"Invalid numeric value: {value!r}", parent=self)
+                messagebox.showerror(
+                    "Invalid value",
+                    f"Use a number, quoted string, or array/list: {value!r}",
+                    parent=self,
+                )
                 self._cancel_edit()
                 return
             row["source_value"] = value

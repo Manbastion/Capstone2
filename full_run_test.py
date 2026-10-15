@@ -1,7 +1,7 @@
-from variable_transfer_v2 import transfer_data
 from run_matlab_import_python_v2 import full_run
 
-input_file = "python_variables.py"
+input_file = "python_variables.txt"
 output_file = "matlab_variables.m"
+save_type = "json"
 
-full_run(input_file, output_file, "txt")
+full_run(input_file, output_file, save_type)

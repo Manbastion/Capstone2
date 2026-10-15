@@ -4,9 +4,10 @@ import uuid
 import tkinter as tk
 from pathlib import Path
 from datetime import datetime
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 
 from variable_transfer_v2 import read_variables, set_variable_values
+from value_files import export_transfer_values, record_value_rows
 
 FILE = Path(__file__).with_name("history.json")
 LIMIT = 500
@@ -137,6 +138,41 @@ def revert_transfer(record_id):
     return record
 
 
+def export_record_dialog(parent, record):
+    timestamp = str(record.get("timestamp", "transfer")).replace(":", "-")
+    destination = Path(record.get("destination_name", "values")).stem
+    default_name = f"{destination}_{timestamp}_values"
+
+    path = filedialog.asksaveasfilename(
+        parent=parent,
+        title="Export transfer values",
+        initialfile=default_name,
+        filetypes=[
+            ("JSON file", "*.json"),
+            ("Text file", "*.txt"),
+            ("CSV file", "*.csv"),
+        ],
+    )
+    if not path:
+        return None
+
+    if not Path(path).suffix:
+        path += ".json"
+
+    try:
+        export_transfer_values(record, path)
+    except (OSError, ValueError, RuntimeError, UnicodeError) as error:
+        messagebox.showerror("Export failed", str(error), parent=parent)
+        return None
+
+    messagebox.showinfo(
+        "Values exported",
+        f"Transfer values saved to:\n{path}",
+        parent=parent,
+    )
+    return path
+
+
 class Details(tk.Toplevel):
     def __init__(self, parent, record):
         super().__init__(parent)
@@ -146,8 +182,6 @@ class Details(tk.Toplevel):
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
-
-        mappings = record.get("mappings", {})
 
         text = (
             f"Source: {record['source_file']}\n"
@@ -190,32 +224,30 @@ class Details(tk.Toplevel):
             padx=12,
         )
 
-        for destination, values in record.get("changes", {}).items():
+        for values in record_value_rows(record):
             tree.insert(
                 "",
                 "end",
                 values=(
-                    values.get(
-                        "source",
-                        mappings.get(destination, destination),
-                    ),
-                    destination,
-                    values["before"],
-                    values["after"],
+                    values.get("source", ""),
+                    values.get("destination", ""),
+                    "" if values.get("before") is None else values.get("before"),
+                    "" if values.get("after") is None else values.get("after"),
                 ),
             )
 
+        buttons = ttk.Frame(self)
+        buttons.grid(row=2, column=0, sticky="ew", padx=12, pady=12)
         ttk.Button(
-            self,
+            buttons,
+            text="Export Values…",
+            command=lambda: export_record_dialog(self, record),
+        ).pack(side="left")
+        ttk.Button(
+            buttons,
             text="Close",
             command=self.destroy,
-        ).grid(
-            row=2,
-            column=0,
-            sticky="e",
-            padx=12,
-            pady=12,
-        )
+        ).pack(side="right")
 
 
 class HistoryWindow(tk.Toplevel):
@@ -278,6 +310,7 @@ class HistoryWindow(tk.Toplevel):
 
         for text, command in (
             ("View Details", self.view),
+            ("Export Values…", self.export),
             ("Revert Variables", self.revert),
             ("Delete Record", self.delete),
             ("Refresh", self.refresh),
@@ -336,6 +369,17 @@ class HistoryWindow(tk.Toplevel):
                 "Select a transfer first.",
                 parent=self,
             )
+
+    def export(self):
+        record = self.selected()
+        if not record:
+            messagebox.showinfo(
+                "History",
+                "Select a transfer first.",
+                parent=self,
+            )
+            return
+        export_record_dialog(self, record)
 
     def revert(self):
         record = self.selected()

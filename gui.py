@@ -6,7 +6,11 @@ from tkinter import ttk, filedialog, messagebox
 
 from config import ConfigEditor
 from history import HistoryWindow, record_transfer
-from variable_transfer_v2 import read_variables, transfer_data, update_source_variables
+from variable_transfer_v2 import (
+    read_variables,
+    transfer_data,
+    update_source_variables,
+)
 
 MODES = ["All Variables", "Include Variables", "Exclude Variables"]
 STATE_FILE = Path(__file__).resolve().with_name("config_state.json")
@@ -47,7 +51,7 @@ class VariableTransferGUI(tk.Tk):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         main.columnconfigure(1, weight=1)
-        main.rowconfigure(4, weight=1)
+        main.rowconfigure(5, weight=1)
 
         for row, (label, variable, command) in enumerate((
             ("Source file:", self.source, self._browse_source),
@@ -62,6 +66,7 @@ class VariableTransferGUI(tk.Tk):
             ttk.Button(main, text="Browse…", command=command).grid(
                 row=row, column=2, padx=(8, 0)
             )
+
 
         ttk.Label(main, text="Mode:").grid(
             row=2, column=0, sticky="w", pady=5
@@ -92,6 +97,7 @@ class VariableTransferGUI(tk.Tk):
             text="Reload Source",
             command=self._load,
         ).pack(side="left", padx=6)
+
 
         ttk.Label(
             tools,
@@ -172,17 +178,23 @@ class VariableTransferGUI(tk.Tk):
             textvariable=self.status,
         ).grid(row=7, column=1, columnspan=2, sticky="w")
 
-    def _choose(self, title):
+    def _choose(self, title, include_json=False):
+        patterns = "*.py *.m *.txt *.csv"
+        if include_json:
+            patterns += " *.json"
+
+        filetypes = [("Supported", patterns)]
+        if include_json:
+            filetypes.append(("JSON file", "*.json"))
+        filetypes.append(("All files", "*.*"))
+
         return filedialog.askopenfilename(
             title=title,
-            filetypes=[
-                ("Supported", "*.py *.m *.txt *.csv"),
-                ("All files", "*.*"),
-            ],
+            filetypes=filetypes,
         )
 
     def _browse_source(self):
-        path = self._choose("Choose source file")
+        path = self._choose("Choose source file", include_json=True)
 
         if path:
             self.source.set(path)

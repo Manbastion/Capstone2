@@ -1,0 +1,72 @@
+{
+  "format": "grasshopper-habsim-transfer-values",
+  "version": 1,
+  "transfer": {
+    "id": "4154897461844121ae494d58c8268bcd",
+    "timestamp": "2026-10-15T17:44:54",
+    "source_file": "/home/tommy/year4/Sem2/Capstone/Capstone2/test_source.py",
+    "destination_file": "/home/tommy/year4/Sem2/Capstone/Capstone2/test_destination.m",
+    "mode": "Include Variables"
+  },
+  "values": [
+    {
+      "source": "battery",
+      "destination": "battry",
+      "before": "95",
+      "after": 100,
+      "value": 100
+    },
+    {
+      "source": "impact_velocity",
+      "destination": "impactVelocity",
+      "before": "1250",
+      "after": 1250,
+      "value": 1250
+    },
+    {
+      "source": "wall_thickness",
+      "destination": "wallThickness",
+      "before": "0.08",
+      "after": 0.08,
+      "value": 0.08
+    },
+    {
+      "source": "launch_angle",
+      "destination": "launch_angl",
+      "before": "45",
+      "after": 45,
+      "value": 45
+    },
+    {
+      "source": "air_pressure",
+      "destination": "airPress",
+      "before": "101325",
+      "after": 6,
+      "value": 6
+    },
+    {
+      "source": "solar_power",
+      "destination": "solarPwr",
+      "before": "2500",
+      "after": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "value": [
+        1,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "source": "temperature",
+      "destination": "temperature",
+      "before": "295.15",
+      "after": "yes",
+      "value": "yes"
+    }
+  ]
+}
