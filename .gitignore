@@ -21,3 +21,10 @@ Thumbs.db
 # Environment Variables 
 .env
 config_state.json
+
+# Local notification preferences, tokens, delivery logs and demo runs
+notification_settings.json
+notifications.log*
+notification_token.txt
+examples/notification_demo/runs/
+*.bak

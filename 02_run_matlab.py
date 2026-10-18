@@ -2,6 +2,8 @@
 Inputs: Repo, MatlabExe, ScriptFile, OutputNames (List), OutputFolder,
         Run, Check, Cancel, TimeoutSeconds
 Outputs: ResultsFile, CSVFile, Done, Running, LogFile, Status
+Optional extra outputs: Failed, NotificationStatus
+Completion alerts are sent by the background runner even without pressing Check.
 """
 import importlib.util
 from pathlib import Path
@@ -19,6 +21,7 @@ def load_module(repo, filename):
     return module
 
 ResultsFile, CSVFile, Done, Running, LogFile, Status = "", "", False, False, "", ""
+Failed, NotificationStatus = False, "not requested"
 try:
     bridge = load_module(Repo, "bridge.py")
     runner = load_module(Repo, "matlab_runner.py")
@@ -42,6 +45,8 @@ try:
         snapshot = runner.job_status(job)
         Running = snapshot["state"] == "Running"
         LogFile = snapshot["log_file"]
+        Failed = snapshot["state"] in ("Failed", "Timed out")
+        NotificationStatus = snapshot.get("notification_status", "not requested")
         Status = "{} ({:.1f}s): {}".format(snapshot["state"], snapshot["elapsed_seconds"], snapshot["message"])
         try:
             current = runner.request_signature(executable, ScriptFile, OutputNames, OutputFolder, timeout)
@@ -59,5 +64,6 @@ try:
         Status = "Ready. Press Run once. Use Check to refresh status or Cancel to stop this job."
 except Exception as error:
     ResultsFile, CSVFile, Done = "", "", False
+    Failed = True
     Status = str(error)
     ghenv.Component.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, Status)

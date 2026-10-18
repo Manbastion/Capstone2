@@ -158,6 +158,12 @@ class VariableTransferGUI(tk.Tk):
 
         ttk.Button(
             actions,
+            text="Notifications…",
+            command=self._notifications,
+        ).pack(side="left", padx=6)
+
+        ttk.Button(
+            actions,
             text="Transfer",
             command=self._transfer,
         ).pack(side="right")
@@ -410,6 +416,10 @@ class VariableTransferGUI(tk.Tk):
 
     def _history(self):
         HistoryWindow(self, self._after_revert)
+
+    def _notifications(self):
+        from notification_settings import NotificationSettings
+        NotificationSettings(self)
 
     def _after_revert(self):
         self._load()
