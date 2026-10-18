@@ -73,7 +73,7 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(bridge.read_result(REPO, status["csv_file"], "a")[1], [2])
         self.assertEqual(self.script.read_text(), "success")
         args = json.loads((job["directory"] / "received_args.json").read_text())
-        self.assertEqual(args[:3], ["-sd", str(self.root), "-batch"])
+        self.assertEqual(args[:3], ["-sd", str(self.root.resolve()), "-batch"])
         self.assertIn("''", args[-1])  # Apostrophes in paths are escaped for MATLAB.
 
     def test_failure_propagates_exit_code_and_log(self):

@@ -49,7 +49,7 @@ class ComponentTests(unittest.TestCase):
         inputs["Apply"] = True
         output = self.execute("01_transfer_variables.py", inputs)
         self.assertTrue(output["Ready"], output["Status"])
-        self.assertEqual(output["TransferredFile"], str(dest))
+        self.assertEqual(output["TransferredFile"], str(dest.resolve()))
         inputs["Apply"] = False
         self.assertTrue(self.execute("01_transfer_variables.py", inputs)["Ready"])
         source.write_text("v0 = 20\n")
