@@ -1,0 +1,27 @@
+name: Notification and bridge tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ['3.10', '3.13']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Test without external services or MATLAB
+        run: python -m unittest discover -s tests -v
+      - name: Check Rhino Python 3.9 syntax
+        run: python tools/check_rhino_syntax.py
