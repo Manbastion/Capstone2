@@ -1,0 +1,21 @@
+meteorite.IL = 2
+meteorite.impactStart = 438
+meteorite.coordinates = [0.54 -0.54]
+meteorite.holeRadius_IL4 = 0.02
+meteorite.holeRadius_IL5 = 0.04
+meteorite.dustDuration = 15
+meteorite.dustAccumRate = [0 10 10]
+Sys6U.agent_operational_mode = 1
+Sys6U.settings_csv = 'HMS_Agent_Settings_User.csv'
+Sys6U.test_settings_file = 'Diagnostic_Test_Settings_User.csv'
+
+meteorite.IL = meteorite.IL - meteorite.IL 
+meteorite.impactStart = meteorite.impactStart - meteorite.impactStart 
+meteorite.coordinates = meteorite.coordinates - meteorite.coordinates 
+meteorite.holeRadius_IL4 = meteorite.holeRadius_IL4 - meteorite.holeRadius_IL4 
+meteorite.holeRadius_IL5 = meteorite.holeRadius_IL5 - meteorite.holeRadius_IL5 
+meteorite.dustDuration = meteorite.dustDuration - meteorite.dustDuration 
+meteorite.dustAccumRate = meteorite.dustAccumRate - meteorite.dustAccumRate 
+Sys6U.agent_operational_mode = Sys6U.agent_operational_mode - Sys6U.agent_operational_mode 
+Sys6U.settings_csv = Sys6U.settings_csv - Sys6U.settings_csv 
+Sys6U.test_settings_file = Sys6U.test_settings_file - Sys6U.test_settings_file 

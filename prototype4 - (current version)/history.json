@@ -1,0 +1,2269 @@
+[
+  {
+    "id": "d33f4c3cc18a436c896dd1396ff90845",
+    "timestamp": "2026-10-26T16:29:45",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "U:\\Capstone\\grasshopper_integration\\grasshopper_integration\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {
+      "meteorite.dustAccumRate": {
+        "before": "[0 0 10]",
+        "after": "[0 10 10]",
+        "source": "meteorite.dustAccumRate"
+      }
+    },
+    "reverted_at": null
+  },
+  {
+    "id": "ba3f0f3981f24eb0b4fc73e3c2e3c49c",
+    "timestamp": "2026-10-26T16:22:56",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "U:\\Capstone\\grasshopper_integration\\grasshopper_integration\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {
+      "meteorite.IL": {
+        "before": "0",
+        "after": "2",
+        "source": "meteorite.IL"
+      },
+      "meteorite.impactStart": {
+        "before": "0",
+        "after": "438",
+        "source": "meteorite.impactStart"
+      },
+      "meteorite.coordinates": {
+        "before": "0",
+        "after": "[0.54 -0.54]",
+        "source": "meteorite.coordinates"
+      },
+      "meteorite.holeRadius_IL4": {
+        "before": "0",
+        "after": "0.02",
+        "source": "meteorite.holeRadius_IL4"
+      },
+      "meteorite.holeRadius_IL5": {
+        "before": "0",
+        "after": "0.04",
+        "source": "meteorite.holeRadius_IL5"
+      },
+      "meteorite.dustDuration": {
+        "before": "0",
+        "after": "15",
+        "source": "meteorite.dustDuration"
+      },
+      "meteorite.dustAccumRate": {
+        "before": "0",
+        "after": "[0 0 10]",
+        "source": "meteorite.dustAccumRate"
+      },
+      "Sys6U.agent_operational_mode": {
+        "before": "0",
+        "after": "1",
+        "source": "Sys6U.agent_operational_mode"
+      },
+      "Sys6U.settings_csv": {
+        "before": "0",
+        "after": "'HMS_Agent_Settings_User.csv'",
+        "source": "Sys6U.settings_csv"
+      },
+      "Sys6U.test_settings_file": {
+        "before": "0",
+        "after": "'Diagnostic_Test_Settings_User.csv'",
+        "source": "Sys6U.test_settings_file"
+      }
+    },
+    "reverted_at": null
+  },
+  {
+    "id": "dac2661f401f4be2b2a4576d979e13e5",
+    "timestamp": "2026-10-19T15:59:04",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {
+      "meteorite.IL": {
+        "before": "0",
+        "after": "4",
+        "source": "meteorite.IL"
+      },
+      "meteorite.impactStart": {
+        "before": "0",
+        "after": "245",
+        "source": "meteorite.impactStart"
+      },
+      "meteorite.coordinates": {
+        "before": "0",
+        "after": "[-0.54 -0.54]",
+        "source": "meteorite.coordinates"
+      },
+      "meteorite.holeRadius_IL4": {
+        "before": "0",
+        "after": "0.02",
+        "source": "meteorite.holeRadius_IL4"
+      },
+      "meteorite.holeRadius_IL5": {
+        "before": "0",
+        "after": "0.04",
+        "source": "meteorite.holeRadius_IL5"
+      },
+      "meteorite.dustDuration": {
+        "before": "0",
+        "after": "37",
+        "source": "meteorite.dustDuration"
+      },
+      "meteorite.dustAccumRate": {
+        "before": "0",
+        "after": "[0 10 0]",
+        "source": "meteorite.dustAccumRate"
+      },
+      "Sys6U.agent_operational_mode": {
+        "before": "0",
+        "after": "1",
+        "source": "Sys6U.agent_operational_mode"
+      }
+    },
+    "reverted_at": null
+  },
+  {
+    "id": "f4e4690d60ee4c7ea897de0c210fbf7a",
+    "timestamp": "2026-10-19T15:29:05",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "435c2eb48420409f828baec0d2e1d6c5",
+    "timestamp": "2026-10-19T15:09:57",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {
+      "meteorite.coordinates": {
+        "before": "0.7636753236814714",
+        "after": "[-0.54 -0.54]",
+        "source": "meteorite.coordinates"
+      },
+      "meteorite.dustAccumRate": {
+        "before": "10",
+        "after": "[0 10 0]",
+        "source": "meteorite.dustAccumRate"
+      }
+    },
+    "reverted_at": null
+  },
+  {
+    "id": "beccaf6a667041ec97c3997b4ae6670d",
+    "timestamp": "2026-10-19T15:08:29",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "55a5bf61a8c44581a7f10019633b6eac",
+    "timestamp": "2026-10-19T15:08:26",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "e05c3aac3df045639aa69a49c2ab40ad",
+    "timestamp": "2026-10-19T15:08:23",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "125200b9fe3f4f38be6779ee3bb846b5",
+    "timestamp": "2026-10-19T15:07:50",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "0b2cefe399164bf7ad97dc45c6342618",
+    "timestamp": "2026-10-19T15:07:37",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "12e6c574d0c84f62922358665c70a394",
+    "timestamp": "2026-10-19T15:07:37",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "3e02f297ebad4ceeaf5f178375b8dea8",
+    "timestamp": "2026-10-19T15:07:36",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "969336b69a9647cca0233b6c130169f8",
+    "timestamp": "2026-10-19T15:07:16",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "3a5c09cecc65461782f2019e29d3bc9e",
+    "timestamp": "2026-10-19T15:07:15",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "61136d4c1f8941c5ac0c3bf4f2567ba2",
+    "timestamp": "2026-10-19T15:07:14",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "dfe837285e2e4829b1a8f6d651b0f97e",
+    "timestamp": "2026-10-19T15:07:14",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "3e228b6a09cf4f0c889d09289977a225",
+    "timestamp": "2026-10-19T15:07:13",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "7864d2b759c7412993f0ca689a406c37",
+    "timestamp": "2026-10-19T15:07:11",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "f10c467d5f32490f90675bf354f57754",
+    "timestamp": "2026-10-19T15:07:00",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "a17db1fbdb8642e6a41b7ab9260eff88",
+    "timestamp": "2026-10-19T15:06:59",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "b6d4cf485040475484f48ee2098e19f7",
+    "timestamp": "2026-10-19T15:06:58",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "d9f9e979b66e4c9ebbe1aa4be98db546",
+    "timestamp": "2026-10-19T15:06:57",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {
+      "meteorite.coordinates": {
+        "before": "[-0.54 -0.54]",
+        "after": "0.7636753236814714",
+        "source": "meteorite.coordinates"
+      },
+      "meteorite.dustAccumRate": {
+        "before": "[0 10 0]",
+        "after": "10",
+        "source": "meteorite.dustAccumRate"
+      }
+    },
+    "reverted_at": null
+  },
+  {
+    "id": "52e0d99f10ca4b89949cbfaf92dc423f",
+    "timestamp": "2026-10-19T15:06:43",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [
+      "meteorite.IL",
+      "meteorite.impactStart",
+      "meteorite.coordinates",
+      "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5",
+      "meteorite.dustDuration",
+      "meteorite.dustAccumRate",
+      "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv",
+      "Sys6U.test_settings_file"
+    ],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.impactStart": "meteorite.impactStart",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file"
+    },
+    "changes": {
+      "meteorite.coordinates": {
+        "before": "0.7636753236814714",
+        "after": "[-0.54 -0.54]",
+        "source": "meteorite.coordinates"
+      },
+      "meteorite.dustAccumRate": {
+        "before": "10",
+        "after": "[0 10 0]",
+        "source": "meteorite.dustAccumRate"
+      }
+    },
+    "reverted_at": null
+  },
+  {
+    "id": "914aad273eb6427ea680e0c3958b8616",
+    "timestamp": "2026-10-19T15:06:26",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "ff04f573bc0a4abdbfd3d68c063be30a",
+    "timestamp": "2026-10-19T15:06:26",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "ae1d4e72ac454ee990228da678df1717",
+    "timestamp": "2026-10-19T15:06:22",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "8354e4991eb3449386b4ac2cdd721f44",
+    "timestamp": "2026-10-19T15:06:08",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "85507719df16462cbe5f9cc90e0fa0cb",
+    "timestamp": "2026-10-19T15:06:03",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {},
+    "reverted_at": null
+  },
+  {
+    "id": "89bdc7849af24ce3a4b48e8841a4bb71",
+    "timestamp": "2026-10-19T14:59:44",
+    "source_file": "C:\\Users\\a1929726\\CapstoneGH\\grasshopper_variables.txt",
+    "destination_file": "C:\\Users\\a1929726\\Downloads\\matlab_test.m",
+    "source_name": "grasshopper_variables.txt",
+    "destination_name": "matlab_test.m",
+    "mode": "All Variables",
+    "selected_variables": [],
+    "transferred_variables": [
+      {
+        "source": "meteorite.IL",
+        "destination": "meteorite.IL"
+      },
+      {
+        "source": "meteorite.impactStart",
+        "destination": "meteorite.impactStart"
+      },
+      {
+        "source": "meteorite.coordinates",
+        "destination": "meteorite.coordinates"
+      },
+      {
+        "source": "meteorite.holeRadius_IL4",
+        "destination": "meteorite.holeRadius_IL4"
+      },
+      {
+        "source": "meteorite.holeRadius_IL5",
+        "destination": "meteorite.holeRadius_IL5"
+      },
+      {
+        "source": "meteorite.dustDuration",
+        "destination": "meteorite.dustDuration"
+      },
+      {
+        "source": "meteorite.dustAccumRate",
+        "destination": "meteorite.dustAccumRate"
+      },
+      {
+        "source": "Sys6U.agent_operational_mode",
+        "destination": "Sys6U.agent_operational_mode"
+      },
+      {
+        "source": "Sys6U.settings_csv",
+        "destination": "Sys6U.settings_csv"
+      },
+      {
+        "source": "Sys6U.test_settings_file",
+        "destination": "Sys6U.test_settings_file"
+      }
+    ],
+    "mappings": {
+      "Sys6U.agent_operational_mode": "Sys6U.agent_operational_mode",
+      "Sys6U.settings_csv": "Sys6U.settings_csv",
+      "Sys6U.test_settings_file": "Sys6U.test_settings_file",
+      "meteorite.IL": "meteorite.IL",
+      "meteorite.coordinates": "meteorite.coordinates",
+      "meteorite.dustAccumRate": "meteorite.dustAccumRate",
+      "meteorite.dustDuration": "meteorite.dustDuration",
+      "meteorite.holeRadius_IL4": "meteorite.holeRadius_IL4",
+      "meteorite.holeRadius_IL5": "meteorite.holeRadius_IL5",
+      "meteorite.impactStart": "meteorite.impactStart"
+    },
+    "changes": {
+      "meteorite.IL": {
+        "before": "0",
+        "after": "4",
+        "source": "meteorite.IL"
+      },
+      "meteorite.impactStart": {
+        "before": "0",
+        "after": "245",
+        "source": "meteorite.impactStart"
+      },
+      "meteorite.coordinates": {
+        "before": "0",
+        "after": "0.7636753236814714",
+        "source": "meteorite.coordinates"
+      },
+      "meteorite.holeRadius_IL4": {
+        "before": "0",
+        "after": "0.02",
+        "source": "meteorite.holeRadius_IL4"
+      },
+      "meteorite.holeRadius_IL5": {
+        "before": "0",
+        "after": "0.04",
+        "source": "meteorite.holeRadius_IL5"
+      },
+      "meteorite.dustDuration": {
+        "before": "0",
+        "after": "37",
+        "source": "meteorite.dustDuration"
+      },
+      "meteorite.dustAccumRate": {
+        "before": "0",
+        "after": "10",
+        "source": "meteorite.dustAccumRate"
+      },
+      "Sys6U.agent_operational_mode": {
+        "before": "0",
+        "after": "1",
+        "source": "Sys6U.agent_operational_mode"
+      },
+      "Sys6U.settings_csv": {
+        "before": "0",
+        "after": "'HMS_Agent_Settings_User.csv'",
+        "source": "Sys6U.settings_csv"
+      },
+      "Sys6U.test_settings_file": {
+        "before": "0",
+        "after": "'Diagnostic_Test_Settings_User.csv'",
+        "source": "Sys6U.test_settings_file"
+      }
+    },
+    "reverted_at": null
+  },
+  {
+    "id": "4154897461844121ae494d58c8268bcd",
+    "timestamp": "2026-10-15T17:44:54",
+    "source_file": "/home/tommy/year4/Sem2/Capstone/Capstone2/test_source.py",
+    "destination_file": "/home/tommy/year4/Sem2/Capstone/Capstone2/test_destination.m",
+    "source_name": "test_source.py",
+    "destination_name": "test_destination.m",
+    "mode": "Include Variables",
+    "selected_variables": [
+      "battery",
+      "impact_velocity",
+      "wall_thickness",
+      "launch_angle",
+      "air_pressure",
+      "solar_power",
+      "temperature"
+    ],
+    "transferred_variables": [
+      {
+        "source": "battery",
+        "destination": "battry",
+        "before": "95",
+        "after": "100",
+        "value": "100"
+      },
+      {
+        "source": "impact_velocity",
+        "destination": "impactVelocity",
+        "before": "1250",
+        "after": "1250",
+        "value": "1250"
+      },
+      {
+        "source": "wall_thickness",
+        "destination": "wallThickness",
+        "before": "0.08",
+        "after": "0.08",
+        "value": "0.08"
+      },
+      {
+        "source": "launch_angle",
+        "destination": "launch_angl",
+        "before": "45",
+        "after": "45",
+        "value": "45"
+      },
+      {
+        "source": "air_pressure",
+        "destination": "airPress",
+        "before": "101325",
+        "after": "6",
+        "value": "6"
+      },
+      {
+        "source": "solar_power",
+        "destination": "solarPwr",
+        "before": "2500",
+        "after": "[1, 1, 2, 3]",
+        "value": "[1, 1, 2, 3]"
+      },
+      {
+        "source": "temperature",
+        "destination": "temperature",
+        "before": "295.15",
+        "after": "\"yes\"",
+        "value": "\"yes\""
+      }
+    ],
+    "mappings": {
+      "battery": "battry",
+      "impact_velocity": "impactVelocity",
+      "wall_thickness": "wallThickness",
+      "launch_angle": "launch_angl",
+      "air_pressure": "airPress",
+      "solar_power": "solarPwr",
+      "temperature": "temperature"
+    },
+    "changes": {
+      "battry": {
+        "before": "95",
+        "after": "100",
+        "source": "battery"
+      },
+      "airPress": {
+        "before": "101325",
+        "after": "6",
+        "source": "air_pressure"
+      },
+      "solarPwr": {
+        "before": "2500",
+        "after": "[1, 1, 2, 3]",
+        "source": "solar_power"
+      },
+      "temperature": {
+        "before": "295.15",
+        "after": "\"yes\"",
+        "source": "temperature"
+      }
+    },
+    "reverted_at": null
+  },
+  {
+    "id": "f7807a6bffb5472abdbf35daaac51377",
+    "timestamp": "2026-09-22T00:11:11",
+    "source_file": "/root/ICT2/test_source.py",
+    "destination_file": "/root/ICT2/test_destination.m",
+    "source_name": "test_source.py",
+    "destination_name": "test_destination.m",
+    "mode": "All Variables",
+    "selected_variables": [
+      "battery",
+      "impact_velocity",
+      "wall_thickness",
+      "launch_angle",
+      "air_pressure",
+      "solar_power",
+      "temperature"
+    ],
+    "transferred_variables": [
+      {
+        "source": "battery",
+        "destination": "battry"
+      },
+      {
+        "source": "impact_velocity",
+        "destination": "impactVelocity"
+      },
+      {
+        "source": "wall_thickness",
+        "destination": "wallThickness"
+      },
+      {
+        "source": "launch_angle",
+        "destination": "launch_angl"
+      },
+      {
+        "source": "air_pressure",
+        "destination": "airPress"
+      },
+      {
+        "source": "solar_power",
+        "destination": "solarPwr"
+      },
+      {
+        "source": "temperature",
+        "destination": "temperature"
+      }
+    ],
+    "mappings": {
+      "battery": "battry",
+      "impact_velocity": "impactVelocity",
+      "wall_thickness": "wallThickness",
+      "launch_angle": "launch_angl",
+      "air_pressure": "airPress",
+      "solar_power": "solarPwr",
+      "temperature": "temperature"
+    },
+    "changes": {},
+    "reverted_at": null
+  }
+]
