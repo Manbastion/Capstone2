@@ -27,13 +27,21 @@ OUTPUTS
   Status      str
 """
 import sys
+from pathlib import Path
 import Grasshopper as gh
 
 Config, Status = None, ""
 try:
-    if Repo and Repo not in sys.path:
-        sys.path.insert(0, str(Repo))
-    import importlib, gh_bridge as gh_bridge
+    folder = Path(str(Repo or "")).expanduser().resolve()
+    if not (folder / "habsim_prototype.py").is_file():
+        folder = folder.parent
+    if not (folder / "habsim_prototype.py").is_file():
+        raise ValueError("Repo must be the extracted Capstone2 folder.")
+    if str(folder) not in sys.path:
+        sys.path.insert(0, str(folder))
+    import importlib
+    from habsim_prototype import load_prototype
+    gh_bridge = load_prototype("gh_bridge", folder)
     importlib.reload(gh_bridge)          # pick up edits without restarting Rhino
 
     Config = gh_bridge.DEFAULT_CONFIG_PATH

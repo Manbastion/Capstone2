@@ -26,14 +26,22 @@ OUTPUTS
   Status          str
 """
 import sys
+from pathlib import Path
 import Grasshopper as gh
 
 MatlabFile_Out, Report, Status = None, [], "Idle. Set Run = True."
 try:
     if Run:
-        if Repo and Repo not in sys.path:
-            sys.path.insert(0, str(Repo))
-        import importlib, Capstone2.prototype4.gh_bridge as gh_bridge
+        folder = Path(str(Repo or "")).expanduser().resolve()
+        if not (folder / "habsim_prototype.py").is_file():
+            folder = folder.parent
+        if not (folder / "habsim_prototype.py").is_file():
+            raise ValueError("Repo must be the extracted Capstone2 folder.")
+        if str(folder) not in sys.path:
+            sys.path.insert(0, str(folder))
+        import importlib
+        from habsim_prototype import load_prototype
+        gh_bridge = load_prototype("gh_bridge", folder)
         importlib.reload(gh_bridge)
 
         Report, skipped = gh_bridge.transfer(Names, Values, str(MatlabFile),
