@@ -1,5 +1,14 @@
 # Desktop and phone notifications
 
+## Simpler Windows setup
+
+For client handover, use [CLIENT_START_HERE.md](CLIENT_START_HERE.md). The built
+app includes Python and opens these same notification settings. The team builds
+it using [WINDOWS_CLIENT_BUILD.md](WINDOWS_CLIENT_BUILD.md). Settings alone do
+not monitor arbitrary Grasshopper blocks: use the app's Run button or the
+matching updated notification-enabled runner. Prototype 4's runner now uses
+the shared notification settings too.
+
 Updated 17 October 2026. Phone alerts use **ntfy**, sometimes pronounced “notify”.
 They are app push notifications, not SMS. Desktop use requires no ntfy account.
 

@@ -1,6 +1,7 @@
 # Notification verification and release checks
 
-Prepared 17 October 2026 against main commit `b324d66` plus this feature's changes.
+Updated 2 November 2026 for the client setup changes based on main `f08e07d`.
+The Windows client has a separate [build and acceptance guide](WINDOWS_CLIENT_BUILD.md).
 
 ## Verified automatically
 
@@ -9,8 +10,11 @@ python -m unittest discover -s tests -v
 python tools/check_rhino_syntax.py
 ```
 
-At preparation, **55 tests passed on Linux with Python 3.12.14**, including an
-actual localhost HTTPS server test. The Rhino Python 3.9 syntax check passed.
+For this update, **66 tests passed and one Windows-only launcher test was
+skipped on Linux** (67 total), including an actual localhost HTTPS server test.
+The Rhino Python 3.9 syntax check passed for 29 modules. The new tests exercise
+workspace exports, renamed-checkout imports, stale-output rejection, prototype
+success/failure notifications and persisted client preferences.
 There were no real desktop alerts or external phone messages in these checks.
 
 | Area | Evidence covered |
@@ -34,7 +38,11 @@ Actual MATLAB execution is not claimed by the fake-process tests.
 ## Device acceptance before client handover
 
 These checks require the target Mac/Windows desktop and the receiving phone.
-No device confirmation has been recorded for this release yet.
+Earlier user testing confirmed Windows MATLAB execution and alerts with the
+root components. The new standalone app/Prototype 4 changes still require their
+own Windows, real-MATLAB and device acceptance checks; earlier success does not
+validate this new build. Native Tk GUI checks cannot run in the headless Linux
+environment used to prepare this update.
 
 1. **Desktop:** open settings, enable desktop, press Test desktop. Record whether
    the alert appeared and sound worked. “Submitted” alone is insufficient.

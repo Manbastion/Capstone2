@@ -1,5 +1,19 @@
 # Grasshopper–HabSim variable transfer and notifications
 
+**Windows client handover:** start with [CLIENT_START_HERE.md](CLIENT_START_HERE.md).
+The simpler **HabSim — Run and notify** app remembers MATLAB/model locations,
+opens notification settings, runs a prepared `.m` file, and keeps per-run results
+and logs. It can be packaged with Python/Tk included; the team builds and tests
+the Windows ZIP using [WINDOWS_CLIENT_BUILD.md](WINDOWS_CLIENT_BUILD.md).
+For source testing, open **Launch_HabSim.bat**. The app does not drive a
+Grasshopper loop or transfer slider inputs.
+
+The setup below describes the original root components. The newer Prototype 4
+lives in `prototype4 - (current version)` and has its own
+[setup guide](prototype4%20-%20%28current%20version%29/SETUP_GUIDE.md).
+Use one matching version; existing `.gh` files retain their embedded code until
+the team updates and saves them.
+
 This prototype transfers inputs into a MATLAB script, runs it from Grasshopper,
 and loads numeric results back. Desktop and optional **ntfy phone notifications**
 alert the user when processing finishes or fails.
@@ -24,8 +38,8 @@ Runtime code uses the standard library; requirements.txt is intentionally empty.
 No MATLAB Engine or extra pip packages are needed.
 
 Use the **complete project version containing this README**, keeping its folder
-structure. An older main-branch download may not include notification features
-until the feature branch is merged.
+structure. A GitHub source ZIP requires Python; a separately built client ZIP
+contains the Windows executable and its runtime.
 
 ## macOS setup
 
