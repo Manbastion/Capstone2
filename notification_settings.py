@@ -130,6 +130,9 @@ class NotificationSettings(tk.Toplevel):
         text.configure(state="disabled")
 
     def destroy(self):
+        if self.pending is not None and not self.pending.done.is_set():
+            self.status.set("Please wait for the notification test to finish before closing.")
+            return
         if self._poll is not None:
             self.after_cancel(self._poll)
             self._poll = None
