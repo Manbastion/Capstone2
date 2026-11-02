@@ -1,9 +1,10 @@
 #! python 3
 """BLOCK 3 - RUN MATLAB  (opens YOUR run_matlab.py)
-Takes the three settings from this block's inputs, writes them into the top of
-your run_matlab.py (CAPSTONE_FOLDER, MATLAB_FILE, SAVE_TYPE - nothing else in
-the file is changed), then opens that script in its own window.
-Grasshopper stays usable while it runs.
+Takes the settings from this block's inputs, writes them into the top of
+your run_matlab.py (CAPSTONE_FOLDER and MATLAB_FILE - nothing else in the
+file is changed), then opens that script in its own window.
+Grasshopper stays usable while it runs. No data is saved: the .m file is
+simply run (including anything it does with Simulink).
 
 INPUTS
   Repo            str   item  - path to your Capstone2 folder (where gh_bridge.py is)
@@ -11,19 +12,20 @@ INPUTS
   CapstoneFolder  str   item  - OPTIONAL. Folder that contains
                                 run_matlab_import_python_v2.py. Empty = the Repo folder.
   MatlabFile      str   item  - the .m file (wire from Transfer block's MatlabFile_Out)
-  SaveType        str   item  - "json", "csv" or "txt". Empty = "json".
   PythonExe       str   item  - OPTIONAL. Full path to a Python 3.10+ python.exe.
                                 Empty = "python".
   Run             bool  item  - Button / Toggle. A run starts when this turns True.
 
 OUTPUTS
-  OutputFile  str   - path of matlab_output_variables.<SaveType>, once MATLAB has written it
-  Ready       bool  - True once the output file has been written by this run
-  Status      str
+  Ready   bool  - True once MATLAB has finished running the .m file without error
+  Status  str
 
-The script's window stays open until you press ENTER in it (your script ends
-with input(...)). The results are ready BEFORE that - Ready turns True as soon
-as MATLAB has written the file.
+(The old SaveType input and OutputFile output are no longer used - you can
+delete them from the component. Ready keeps its name so existing wires still work.)
+
+HEADLESS (MATLAB window or not) is set inside run_matlab.py, not here.
+The script's window stays open until you press ENTER in it. Ready turns
+True as soon as MATLAB has finished, before that.
 """
 import sys
 import System
@@ -34,12 +36,12 @@ import scriptcontext as sc
 comp = ghenv.Component
 key = "CapstoneRunScript_" + str(comp.InstanceGuid)
 
-OutputFile, Ready, Status = None, False, "Idle. Press Run."
+Ready, Status = False, "Idle. Press Run."
 note = ""
 
 
 def _recompute():
-    """Called from a background thread when the output appears / the script exits."""
+    """Called from a background thread when MATLAB finishes / the script exits."""
     def on_ui_thread():
         comp.ExpireSolution(True)
     try:
@@ -51,8 +53,8 @@ def _recompute():
 try:
     if Repo and Repo not in sys.path:
         sys.path.insert(0, str(Repo))
-    import importlib, gh_bridge
-    importlib.reload(gh_bridge)
+    import importlib, gh_matlab_run as gh_run
+    importlib.reload(gh_run)
 
     run = sc.sticky.get(key)
 
@@ -68,32 +70,33 @@ try:
             if not MatlabFile:
                 raise ValueError("MatlabFile is empty - has the Transfer block finished?")
             capstone = str(CapstoneFolder) if CapstoneFolder else str(Repo)
-            changed = gh_bridge.update_script_settings(
-                str(RunScript), capstone, str(MatlabFile), str(SaveType) if SaveType else "json")
-            run = gh_bridge.ScriptRun(
+            gh_run.update_script_settings(str(RunScript), capstone, str(MatlabFile))
+            run = gh_run.ScriptRun(
                 str(RunScript), str(PythonExe) if PythonExe else "python",
-                str(MatlabFile), str(SaveType) if SaveType else "json",
-                on_change=_recompute)
+                str(MatlabFile), on_change=_recompute)
             sc.sticky[key] = run
 
     if run is not None:
-        Ready = run.output_ready
-        OutputFile = run.output_file if Ready else None
-        if run.running and Ready:
-            Status = "MATLAB finished - output is ready. Press ENTER in the script's window to close it."
+        Ready = bool(run.matlab_done and run.matlab_status == 0)
+        if run.running and run.matlab_done and run.matlab_status == 0:
+            Status = "MATLAB finished. Press ENTER in the script's window to close it."
+        elif run.running and run.matlab_done:
+            Status = "MATLAB reported an error. See the script's window for details."
         elif run.running:
-            Status = "Running run_matlab.py (%d s so far)... a window has opened." % run.elapsed
+            Status = "Running MATLAB (%d s so far)... a window has opened." % run.elapsed
+        elif run.matlab_done and run.matlab_status == 0:
+            Status = "Finished."
+        elif run.matlab_done:
+            Status = "MATLAB reported an error (see the script's window, or run run_matlab.py yourself to see it again)."
         elif run.returncode == 0:
-            Status = "Finished. Output: %s" % run.output_file
+            Status = "The script closed before MATLAB reported back. Check MATLAB ran."
         else:
-            Status = ("The script stopped with exit code %s and no output was written. "
-                      "The error was shown in its window; run run_matlab.py yourself "
-                      "(VS Code or Command Prompt) to see it again." % run.returncode)
-            if Ready:
-                Status = "The script exited with code %s, but the output file was written." % run.returncode
+            Status = ("The script stopped with exit code %s before MATLAB finished. "
+                      "Run run_matlab.py yourself (VS Code or Command Prompt) to see the error."
+                      % run.returncode)
     Status = note + Status
 except Exception as e:
-    OutputFile, Ready = None, False
+    Ready = False
     Status = "ERROR: %s" % e
     ghenv.Component.AddRuntimeMessage(
         gh.Kernel.GH_RuntimeMessageLevel.Error, Status)
