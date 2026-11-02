@@ -1,7 +1,8 @@
 """Non-blocking MATLAB batch execution; no Rhino, Tkinter or Engine dependency.
 
 Each job owns a new folder. Result paths become available only after both a
-successful process exit and validated, freshly exported numeric results.
+successful process exit and a validated, fresh export. Existing components use
+numeric scalar/vector JSON and CSV; the standalone app can export workspace JSON.
 """
 import csv
 import hashlib
@@ -25,6 +26,7 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 from habsim_notifications import notify_completion
+from habsim_runtime import external_environment
 
 
 def _path(value):
@@ -52,23 +54,28 @@ def _output_names(names):
     return names
 
 
-def request_signature(matlab_exe, script_file, names, output_folder, timeout_seconds):
+def request_signature(matlab_exe, script_file, names, output_folder, timeout_seconds, export_mode="numeric"):
     """A changed script/input setting invalidates the previous result on canvas."""
     script = _path(script_file)
     request = {
         "matlab_exe": str(matlab_exe), "script_file": str(script),
-        "output_names": _output_names(names), "output_folder": str(_path(output_folder)),
+        "output_names": _output_names(names) if export_mode == "numeric" else [],
+        "output_folder": str(_path(output_folder)),
         "timeout_seconds": float(timeout_seconds),
         "script_sha256": hashlib.sha256(script.read_bytes()).hexdigest(),
     }
+    if export_mode != "numeric":
+        if export_mode != "workspace":
+            raise ValueError("Unknown export mode.")
+        request["export_mode"] = export_mode
     return json.dumps(request, sort_keys=True)
 
 
-def wrapper_source(script, names, directory, job_id):
+def wrapper_source(script, names, directory, job_id, export_mode="numeric"):
     """Keep export variables in a function workspace, isolated from user script."""
     run_expression = "run({})".format(_matlab_string(script))
     names_literal = "{" + ", ".join(_matlab_string(n) for n in names) + "}"
-    return """function capstone_job_entry()
+    source = """function capstone_job_entry()
 % Generated adapter. The selected user script is executed in the base workspace.
 % This wrapper does not append export code to the original script.
 evalin('base', 'clearvars');
@@ -106,6 +113,23 @@ end
         "RESULTS_PATH", _matlab_string(directory / "results.json")).replace(
         "COMPLETE_PATH", _matlab_string(directory / "completed.txt")).replace(
         "JOB_ID", _matlab_string(job_id))
+    if export_mode == "workspace":
+        source = source.replace("names = " + names_literal + ";", "names = evalin('base', 'who');")
+        first = source.index("    if ~isnumeric(value)")
+        last = source.index("\nend\nfid = fopen", first)
+        source = source[:first] + "    results.(name) = value;" + source[last:]
+    return source
+
+
+def _validate_workspace(path):
+    """MATLAB jsonencode supports nested structs, matrices, text and logicals."""
+    def invalid_constant(value):
+        raise ValueError("Non-JSON numeric constant in results: " + value)
+    result = json.loads(path.read_text(encoding="utf-8"),
+                        object_pairs_hook=_unique_json, parse_constant=invalid_constant)
+    if not isinstance(result, dict):
+        raise ValueError("MATLAB workspace export must be a JSON object.")
+    return result
 
 
 def _resolve_executable(value):
@@ -186,7 +210,7 @@ def _finish(job, state, message, return_code=None):
         "log_file": str(job["directory"] / "matlab.log"),
         "job_directory": str(job["directory"]),
         "results_file": str(job["directory"] / "results.json") if state == "Succeeded" else "",
-        "csv_file": str(job["directory"] / "results.csv") if state == "Succeeded" else "",
+        "csv_file": str(job["directory"] / "results.csv") if state == "Succeeded" and job.get("export_mode", "numeric") == "numeric" else "",
     }
     with job["lock"]:
         # A terminal job cannot finish twice, even if a cancellation races exit.
@@ -202,7 +226,7 @@ def _finish(job, state, message, return_code=None):
         try:
             job["notification"] = notify_completion(
                 success=state == "Succeeded", elapsed_seconds=snapshot["elapsed_seconds"],
-                variable_count=len(job["names"]) if state == "Succeeded" else None)
+                variable_count=job.get("variable_count", len(job["names"])) if state == "Succeeded" else None)
         except Exception:
             # Even an unavailable notifier must not alter exported results/status.
             pass
@@ -231,9 +255,15 @@ def _monitor(job):
         marker = job["directory"] / "completed.txt"
         if not marker.is_file() or marker.read_text().strip() != job["job_id"]:
             raise ValueError("MATLAB exited without the expected export completion marker.")
-        result = _validate_results(job["directory"] / "results.json", job["names"])
-        _write_csv(result, job["directory"] / "results.csv", job["names"])
-        _finish(job, "Succeeded", "MATLAB finished; validated JSON and CSV are ready.", code)
+        if job.get("export_mode", "numeric") == "workspace":
+            result = _validate_workspace(job["directory"] / "results.json")
+            message = "MATLAB finished; the workspace JSON is ready."
+        else:
+            result = _validate_results(job["directory"] / "results.json", job["names"])
+            _write_csv(result, job["directory"] / "results.csv", job["names"])
+            message = "MATLAB finished; validated JSON and CSV are ready."
+        job["variable_count"] = len(result)
+        _finish(job, "Succeeded", message, code)
     except Exception as error:
         try:
             _stop_process(process)
@@ -242,10 +272,10 @@ def _monitor(job):
         _finish(job, "Failed", str(error), process.poll())
 
 
-def start_job(matlab_exe, script_file, names, output_folder, timeout_seconds=600, notify=True):
+def start_job(matlab_exe, script_file, names, output_folder, timeout_seconds=600, notify=True, export_mode="numeric"):
     started = time.monotonic()
     try:
-        return _start_job(matlab_exe, script_file, names, output_folder, timeout_seconds, notify)
+        return _start_job(matlab_exe, script_file, names, output_folder, timeout_seconds, notify, export_mode)
     except Exception:
         if notify:
             try:
@@ -255,10 +285,12 @@ def start_job(matlab_exe, script_file, names, output_folder, timeout_seconds=600
         raise
 
 
-def _start_job(matlab_exe, script_file, names, output_folder, timeout_seconds, notify):
+def _start_job(matlab_exe, script_file, names, output_folder, timeout_seconds, notify, export_mode="numeric"):
     executable = _resolve_executable(matlab_exe)
     script, directory_root = _path(script_file), _path(output_folder)
-    names = _output_names(names)
+    if export_mode not in ("numeric", "workspace"):
+        raise ValueError("Unknown export mode.")
+    names = _output_names(names) if export_mode == "numeric" else []
     if not script.is_file() or script.suffix.lower() != ".m":
         raise ValueError("ScriptFile must point to an existing .m script.")
     if script.with_suffix(".p").exists():
@@ -268,14 +300,14 @@ def _start_job(matlab_exe, script_file, names, output_folder, timeout_seconds, n
     timeout = float(timeout_seconds)
     if not math.isfinite(timeout) or timeout <= 0:
         raise ValueError("TimeoutSeconds must be a positive finite number.")
-    signature = request_signature(matlab_exe, script, names, directory_root, timeout)
+    signature = request_signature(matlab_exe, script, names, directory_root, timeout, export_mode)
     # Validate paths before creating the job folder.
     _matlab_string(script)
     _matlab_string(directory_root)
     job_id = uuid.uuid4().hex
     directory = Path(tempfile.mkdtemp(prefix="capstone_run_", dir=str(directory_root)))
     (directory / "capstone_job_entry.m").write_text(
-        wrapper_source(script, names, directory, job_id), encoding="utf-8")
+        wrapper_source(script, names, directory, job_id, export_mode), encoding="utf-8")
     request = json.loads(signature)
     request.update(job_id=job_id, executable=executable)
     (directory / "request.json").write_text(json.dumps(request, indent=2), encoding="utf-8")
@@ -285,7 +317,7 @@ def _start_job(matlab_exe, script_file, names, output_folder, timeout_seconds, n
     command += ["-sd", str(script.parent), "-batch",
                 "addpath({}); capstone_job_entry".format(_matlab_string(directory))]
     kwargs = {"cwd": str(directory), "stdin": subprocess.DEVNULL,
-              "stderr": subprocess.STDOUT, "shell": False}
+              "stderr": subprocess.STDOUT, "shell": False, "env": external_environment()}
     if os.name == "nt":
         kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP
     else:
@@ -295,7 +327,7 @@ def _start_job(matlab_exe, script_file, names, output_folder, timeout_seconds, n
     job = {"process": process, "directory": directory, "names": names,
            "job_id": job_id, "signature": signature, "started": time.monotonic(),
            "timeout": timeout, "cancel": threading.Event(), "lock": threading.Lock(),
-           "notify": bool(notify), "notification": None}
+           "notify": bool(notify), "notification": None, "export_mode": export_mode}
     _finish(job, "Running", "MATLAB is running. Press Check to refresh the canvas.")
     worker = threading.Thread(target=_monitor, args=(job,), daemon=True, name="CapstoneMatlabJob")
     job["worker"] = worker
