@@ -1,16 +1,22 @@
+import codecs
 import csv
+import io
 import json
 import os
 import re
 
-from .matlab_literals import (
-    NAME, NUM, normalize, parse as parse_literal, restyle, scan_statements,
+from matlab_literals import (
+    NAME, NUM, normalize, parse as parse_literal, quote, restyle, scan_statements,
+    token_kind, unquote,
 )
 
 # ---------------------------------------------------------------------------
 # .py / .m / .txt files are read with matlab_literals (scalars, strings, true/
 # false, NaN/Inf, vectors/matrices/cell arrays of ANY length, also over several
-# lines). .json and .csv files keep the original numeric-only line patterns.
+# lines). .json files keep the original numeric-only line patterns. .csv files
+# have their own reader/writer (see "CSV helpers" below): values are handled
+# internally as the same literal text as everywhere else ( 5  'text'  [1 2 3] ),
+# and only converted to plain cell text when they are written into the file.
 # ---------------------------------------------------------------------------
 _SEP = r"(?:\s*[,;:]\s*|\s+)"
 _VEC = rf"\[\s*(?:{NUM}(?:{_SEP}{NUM})*)?\s*[,;]?\s*\](?:'|\.')?"
@@ -82,92 +88,214 @@ def _split(line):
 
 
 # ---------------- CSV helpers ----------------
-# A CSV "variable" is any row shaped like: name,value[,...extra columns].
-# Extra columns are preserved untouched. A header row (e.g. "name,value")
-# is skipped automatically because its value cell isn't numeric.
+# A CSV file has a HEADER ROW and can be laid out in one of two ways (found
+# automatically, see _csv_layout):
+#
+#   "rows"     one variable per row:      name,value[,extra columns]
+#                                         v0,12
+#                                         a,2
+#   "columns"  names in the header row,   IL,impactStart,coordinates
+#              values in the row below:   2,438,[0.54 -0.54]
+#
+# Values are read as the same literal text the rest of the program uses
+# (5, 'text', true, [1 2 3]) and written back as plain cell text (5, text, true,
+# [1 2 3]). Every other cell, extra column and line is left exactly as it was.
+# The file's encoding (UTF-8, UTF-8 with BOM, or Windows-1252), line endings and
+# a missing final newline are kept too.
+
+# First-cell header words that say "this file lists one variable per row".
+_NAME_HEADERS = {
+    "name", "names", "variable", "variables", "var", "vars", "parameter",
+    "parameters", "param", "params", "key", "keys", "setting", "settings",
+    "field", "property", "item", "label", "id",
+}
+
+
+def _load_csv(path):
+    """Read a .csv file -> (rows, meta). meta remembers how to write it back."""
+    with open(path, "rb") as file:
+        raw = file.read()
+    bom = raw.startswith(codecs.BOM_UTF8)
+    try:
+        text, encoding = raw.decode("utf-8-sig"), "utf-8"
+    except UnicodeDecodeError:
+        try:
+            text, encoding = raw.decode("cp1252"), "cp1252"
+        except UnicodeDecodeError:
+            text, encoding = raw.decode("latin-1"), "latin-1"
+    meta = {
+        "encoding": encoding,
+        "bom": bom,
+        "eol": "\r\n" if "\r\n" in text else "\n",
+        "trailing": text.endswith(("\n", "\r")) or not text,
+    }
+    return list(csv.reader(io.StringIO(text, newline=""))), meta
+
+
+def _save_csv(path, rows, meta):
+    buffer = io.StringIO(newline="")
+    csv.writer(buffer, lineterminator=meta["eol"]).writerows(rows)
+    text = buffer.getvalue()
+    if not meta["trailing"] and text.endswith(meta["eol"]):
+        text = text[:-len(meta["eol"])]
+    try:
+        data = text.encode(meta["encoding"])
+    except UnicodeEncodeError as error:
+        raise ValueError(
+            f"{os.path.basename(path)} is saved as {meta['encoding']} and can't hold "
+            f"the character {error.object[error.start]!r}. Re-save the file as "
+            f"UTF-8 (Excel: Save As > CSV UTF-8) and try again."
+        )
+    if meta["bom"]:
+        data = codecs.BOM_UTF8 + data
+    temp = path + ".tmp"
+    with open(temp, "wb") as file:
+        file.write(data)
+    try:
+        os.replace(temp, path)
+    except PermissionError:
+        os.remove(temp)
+        raise PermissionError(
+            f"Can't write {os.path.basename(path)}: it is open in another program "
+            f"(Excel?). Close it and try again."
+        )
+
+
+def _csv_ok(value):
+    """True if this literal fits in one CSV cell: a single value or a numeric vector."""
+    lit = parse_literal(str(value))
+    if lit is None:
+        return False
+    if not lit.bracket:
+        return True
+    return lit.bracket == "[" and all(
+        token_kind(token) != "string" for row in lit.rows for token in row
+    )
+
+
+def _csv_to_literal(text):
+    """Cell text -> literal text: 12 -> 12, [1 2 3] -> [1 2 3], m/s -> 'm/s', empty -> ''."""
+    cell = str(text).strip()
+    if not cell:
+        return "''"
+    lit = parse_literal(cell)
+    if lit is not None and _csv_ok(cell) and not (not lit.bracket and lit.kind == "string"):
+        return cell
+    return quote(cell)
+
+
+def _literal_to_csv(value):
+    """Literal text -> cell text: 'm/s' -> m/s, everything else as it is."""
+    lit = parse_literal(str(value))
+    if lit is not None and not lit.bracket and lit.kind == "string":
+        return unquote(lit.rows[0][0])
+    return str(value).strip()
+
+
+def _csv_layout(rows):
+    """'rows' (name,value per row) or 'columns' (names in the header row)."""
+    if len(rows) < 2 or not rows[0]:
+        return "rows"
+    header = [cell.strip() for cell in rows[0]]
+    if header[0].lower() in _NAME_HEADERS:
+        return "rows"
+    names = [cell for cell in header if cell]
+    if not names or not all(valid_name(cell) for cell in names):
+        return "rows"
+    # Names across the top. If the first cells of the data rows are names too,
+    # it is a list of variables with an unusual header; otherwise (numbers,
+    # blanks) it is a header row with values underneath.
+    first_cells = [row[0].strip() for row in rows[1:] if row]
+    if first_cells and all(valid_name(cell) for cell in first_cells):
+        return "rows"
+    return "columns"
+
+
+def _csv_cells(rows):
+    """Every variable in the file: [{'name', 'name_pos', 'value_pos'}] (row, column)."""
+    cells, seen = [], set()
+    if _csv_layout(rows) == "columns":
+        for column, cell in enumerate(rows[0]):
+            name = cell.strip()
+            if valid_name(name) and name not in seen:
+                seen.add(name)
+                cells.append({"name": name, "name_pos": (0, column),
+                              "value_pos": (1, column)})
+        return cells
+
+    for index, row in enumerate(rows):
+        if len(row) < 2:
+            continue
+        name, value = row[0].strip(), row[1].strip()
+        if not valid_name(name) or not value or name in seen:
+            continue
+        if index == 0 and not _numeric_only(value):
+            continue                     # the header row, e.g.  name,value
+        seen.add(name)
+        cells.append({"name": name, "name_pos": (index, 0), "value_pos": (index, 1)})
+    return cells
+
+
+def _csv_value(rows, position):
+    row, column = position
+    text = rows[row][column] if row < len(rows) and column < len(rows[row]) else ""
+    return _csv_to_literal(text)
+
+
+def _csv_set(rows, position, text):
+    row, column = position
+    rows[row] = list(rows[row]) + [""] * (column + 1 - len(rows[row]))
+    rows[row][column] = text
+
 
 def _read_variables_csv(path):
-    variables = {}
-    with open(path, encoding="utf-8", newline="") as file:
-        for row in csv.reader(file):
-            if len(row) < 2:
-                continue
-            name, value = row[0].strip(), row[1].strip()
-            if valid_name(name) and _numeric_only(value):
-                variables[name] = value
-    return variables
+    rows, _ = _load_csv(path)
+    return {cell["name"]: _csv_value(rows, cell["value_pos"]) for cell in _csv_cells(rows)}
 
 
 def _write_changes_csv(path, changes, strict):
-    with open(path, encoding="utf-8", newline="") as file:
-        rows = list(csv.reader(file))
+    rows, meta = _load_csv(path)
+    cells = {cell["name"]: cell for cell in _csv_cells(rows)}
 
     found = set()
-    output_rows = []
-
-    for row in rows:
-        if len(row) < 2:
-            output_rows.append(row)
+    for old, (new, value) in changes.items():
+        cell = cells.get(old)
+        if cell is None:
             continue
-
-        name, value = row[0].strip(), row[1].strip()
-        if not (valid_name(name) and _numeric_only(value) and name in changes):
-            output_rows.append(row)
-            continue
-
-        new, new_value = changes[name]
-        new_row = list(row)
-        new_row[0] = new
-        new_row[1] = new_value
-        output_rows.append(new_row)
-        found.add(name)
+        _csv_set(rows, cell["value_pos"], _literal_to_csv(value))
+        _csv_set(rows, cell["name_pos"], new)
+        found.add(old)
 
     missing = sorted(set(changes) - found)
     if strict and missing:
         raise ValueError("Could not find: " + ", ".join(missing))
 
-    with open(path, "w", encoding="utf-8", newline="") as file:
-        csv.writer(file).writerows(output_rows)
-
+    _save_csv(path, rows, meta)
     return {"updated": sorted(found), "missing": missing}
 
 
 def _transfer_write_csv(output_file, mapping, reverse, source, apply):
-    with open(output_file, encoding="utf-8", newline="") as file:
-        rows = list(csv.reader(file))
+    rows, meta = _load_csv(output_file)
+    cells = _csv_cells(rows)
+    found = {cell["name"] for cell in cells}
 
-    found = set()
     transferred = []
     changes = {}
-    output_rows = []
+    dirty = False
 
-    for row in rows:
-        if len(row) < 2:
-            output_rows.append(row)
-            continue
-
-        destination_name = row[0].strip()
-        old_value = row[1].strip()
-
-        if not (valid_name(destination_name) and _numeric_only(old_value)):
-            output_rows.append(row)
-            continue
-
-        found.add(destination_name)
+    for cell in cells:
+        destination_name = cell["name"]
         source_name = reverse.get(destination_name)
-
         if source_name is None:
-            output_rows.append(row)
             continue
 
-        new_value = source[source_name]
-        new_row = list(row)
-        new_row[1] = new_value
-        output_rows.append(new_row)
-
+        old_value = _csv_value(rows, cell["value_pos"])
+        new_value = restyle(source[source_name], old_value)
         transferred.append({"source": source_name, "destination": destination_name})
 
         if old_value != new_value:
+            _csv_set(rows, cell["value_pos"], _literal_to_csv(new_value))
+            dirty = True
             changes[destination_name] = {
                 "before": old_value,
                 "after": new_value,
@@ -180,9 +308,8 @@ def _transfer_write_csv(output_file, mapping, reverse, source, apply):
         if destination_name not in found
     )
 
-    if apply:
-        with open(output_file, "w", encoding="utf-8", newline="") as file:
-            csv.writer(file).writerows(output_rows)
+    if apply and dirty:
+        _save_csv(output_file, rows, meta)
 
     return transferred, changes, missing
 
@@ -223,10 +350,23 @@ def _check(name, value, path=None):
             f"Invalid value for {name}: {value!r} (use a number, 'text', "
             f"[1 2 3], [1 2;3 4], {{'a','b'}}, true/false, NaN or Inf)"
         )
-    if path is not None and not _is_text_file(path) and not _numeric_only(value):
+    if path is not None:
+        _check_fits(name, value, path)
+
+
+def _check_fits(name, value, path):
+    """Can this value be written into this kind of file?"""
+    where = os.path.basename(str(path))
+    if is_csv_file(path):
+        if not _csv_ok(value):
+            raise ValueError(
+                f"{name} = {value} can't be written into {where}: a CSV cell holds "
+                f"one number, true/false, plain text or a numeric vector like [1 2 3]."
+            )
+    elif is_json_file(path) and not _numeric_only(value):
         raise ValueError(
-            f"{name} = {value} can't be written into {os.path.basename(str(path))}: "
-            f"only plain numbers and numeric vectors fit in .json/.csv files."
+            f"{name} = {value} can't be written into {where}: "
+            f"only plain numbers and numeric vectors fit in .json files."
         )
 
 
@@ -366,7 +506,9 @@ def transfer_data(
     Array values of any length are written on one line.
 
     input_file / output_file may be .py/.m/.txt, .json or .csv, in any
-    combination. (.json and .csv destinations take plain numbers/vectors only.)
+    combination. A .json destination takes plain numbers/vectors only; a .csv
+    destination takes numbers, true/false, plain text and numeric vectors (see
+    "CSV helpers" for the two supported layouts).
     """
     source = dict(source_variables or read_variables(input_file))
 
@@ -374,7 +516,7 @@ def transfer_data(
         raise ValueError("No supported variables found in source file.")
 
     for name, value in source.items():
-        _check(name, value, output_file)
+        _check(name, value)
 
     selected = set(selected_variables or [])
 
@@ -420,6 +562,10 @@ def transfer_data(
                 f"{destination_name!r}."
             )
         reverse[destination_name] = source_name
+
+    # Only the values that will really be written have to fit the file type.
+    for source_name in reverse.values():
+        _check_fits(source_name, source[source_name], output_file)
 
     if is_csv_file(output_file):
         transferred, changes, missing = _transfer_write_csv(

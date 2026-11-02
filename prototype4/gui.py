@@ -4,11 +4,11 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
-from . import gh_bridge as gh_bridge
-from .config import ConfigEditor
-from .history import HistoryWindow, record_transfer
-from .format_editor import FormatEditor
-from .variable_transfer_v2 import (
+import gh_bridge
+from config import ConfigEditor
+from history import HistoryWindow, record_transfer
+from format_editor import FormatEditor
+from variable_transfer_v2 import (
     read_variables,
     transfer_data,
     update_source_variables,

@@ -1,27 +1,19 @@
-from pathlib import Path
+import os
 import sys
 
-# Grasshopper updates these three lines. Empty defaults show a useful error.
-CAPSTONE_FOLDER = r""
-MATLAB_FILE = r""
-SAVE_TYPE = "json"
+# ---------------------------- CHANGE THESE ----------------------------------
+CAPSTONE_FOLDER = r"U:\Capstone\grasshopper_integration\grasshopper_integration"           # folder that contains run_matlab_import_python_v2.py
+MATLAB_FILE = r"U:\Capstone\grasshopper_integration\grasshopper_integration\matlab_test.m"      # the SAME .m file that the Grasshopper blocks use
+HEADLESS = True    # True = matlab -batch (no MATLAB window, output prints here). False = open the MATLAB desktop.
+# -----------------------------------------------------------------------------
 
+sys.path.insert(0, CAPSTONE_FOLDER)
+from run_matlab_import_python_v2 import full_run  # noqa: E402
 
-def main():
-    folder = Path(CAPSTONE_FOLDER).expanduser().resolve() if CAPSTONE_FOLDER else Path(__file__).resolve().parent
-    if not (folder / "habsim_prototype.py").is_file():
-        folder = folder.parent
-    sys.path.insert(0, str(folder))
-    from habsim_prototype import load_prototype
-    runner = load_prototype("run_matlab_import_python_v2", folder)
-    if not MATLAB_FILE:
-        raise ValueError("Choose a MATLAB file in the RUN MATLAB block, or use Launch_HabSim.bat.")
-    runner.full_run(MATLAB_FILE, SAVE_TYPE)
-    try:
-        input("Press ENTER to close program.")
-    except EOFError:
-        pass
-
-
-if __name__ == "__main__":
-    main()
+status = full_run(MATLAB_FILE, headless=HEADLESS)
+if status == 0:
+    print("Done.")
+else:
+    print("The MATLAB run did not finish cleanly (status %s)." % status)
+input("Press ENTER to close program.")
+sys.exit(status)

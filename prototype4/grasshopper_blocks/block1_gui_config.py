@@ -4,12 +4,13 @@ Rhino 8 > Script editor > new "Python 3 Script" component.
 
 The window is the same one as the standalone app, except:
   source      = the Names/Values wired into this block (live Grasshopper variables)
-  destination = the MatlabFile wired into this block
+  destination = the file wired into the MatlabFile input: a MATLAB .m file or a .csv
+                file (the input keeps the name MatlabFile so existing wires still work)
 Everything you set in it (mode, tick boxes, links, renames) is saved, and the
 Transfer block uses it when you wire this block's Config output into it.
 
 INPUTS  (right-click each input -> set Type Hint / Access as shown)
-  Repo        str   item  - path to your Capstone2 folder
+  Repo        str   item  - path to the folder that contains gh_bridge.py
   Names       str   list  - GH variable names   (e.g. from a Panel)
   Values      (no type hint) TREE - one BRANCH per variable, in the same order
                             as Names. Numbers, text, true/false and points are all
@@ -18,7 +19,9 @@ INPUTS  (right-click each input -> set Type Hint / Access as shown)
                             and leave the type hint EMPTY (a 'float' hint would
                             reject text). Your own formats (e.g. 1 | 2 | 3 ->
                             [1 2 3]) are set up in the GUI: Value Formats...
-  MatlabFile  str   item  - the MATLAB .m file to transfer into
+  MatlabFile  str   item  - the file to transfer into: a MATLAB .m file, or a .csv file
+                            with a header row (see SETUP_GUIDE, "CSV destinations").
+                            Value Formats are applied to .m files only.
   PythonExe   str   item  - OPTIONAL, python with tkinter (default: "python")
   Open        bool  item  - wire a Button here; press to open the GUI
 
@@ -27,21 +30,13 @@ OUTPUTS
   Status      str
 """
 import sys
-from pathlib import Path
 import Grasshopper as gh
 
 Config, Status = None, ""
 try:
-    folder = Path(str(Repo or "")).expanduser().resolve()
-    if not (folder / "habsim_prototype.py").is_file():
-        folder = folder.parent
-    if not (folder / "habsim_prototype.py").is_file():
-        raise ValueError("Repo must be the extracted Capstone2 folder.")
-    if str(folder) not in sys.path:
-        sys.path.insert(0, str(folder))
-    import importlib
-    from habsim_prototype import load_prototype
-    gh_bridge = load_prototype("gh_bridge", folder)
+    if Repo and Repo not in sys.path:
+        sys.path.insert(0, str(Repo))
+    import importlib, gh_bridge
     importlib.reload(gh_bridge)          # pick up edits without restarting Rhino
 
     Config = gh_bridge.DEFAULT_CONFIG_PATH

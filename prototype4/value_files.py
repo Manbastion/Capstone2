@@ -4,7 +4,7 @@ import csv
 import json
 from pathlib import Path
 
-from .variable_transfer_v2 import normalise_value
+from variable_transfer_v2 import normalise_value
 
 
 FORMAT_NAME = "grasshopper-habsim-transfer-values"

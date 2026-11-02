@@ -11,12 +11,12 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 import importlib  # noqa: E402
-from . import matlab_literals as matlab_literals  # noqa: E402
-from . import value_formats as value_formats  # noqa: E402
-from . import variable_transfer_v2 as variable_transfer_v2  # noqa: E402
+import matlab_literals  # noqa: E402
+import value_formats  # noqa: E402
+import variable_transfer_v2  # noqa: E402
 for _module in (matlab_literals, value_formats, variable_transfer_v2):
     importlib.reload(_module)  # Rhino keeps old modules in memory
-from .variable_transfer_v2 import transfer_data, valid_name, valid_value  # noqa: E402
+from variable_transfer_v2 import transfer_data, valid_name, valid_value  # noqa: E402
 
 # Persistent folder (not %TEMP%, which Windows may clean up).
 WORK_DIR = os.path.join(os.path.expanduser("~"), "CapstoneGH")
@@ -35,6 +35,39 @@ MODE_TO_BACKEND = {
     "Include Variables": "include",
     "Exclude Variables": "exclude",
 }
+
+# The destination can be any of these. The type is read from the file extension.
+#   matlab : .m                         values get your saved Value Formats
+#   csv    : .csv                       plain values (see variable_transfer_v2, "CSV helpers")
+#   json   : .json                      numbers/vectors only
+#   text   : .py, .txt and anything     'name = value' lines
+#            else
+MATLAB_EXTENSIONS = (".m",)
+
+
+def destination_kind(path):
+    """'matlab', 'csv', 'json' or 'text' - decided by the file extension."""
+    ext = os.path.splitext(str(path or ""))[1].lower()
+    if ext in MATLAB_EXTENSIONS:
+        return "matlab"
+    if ext == ".csv":
+        return "csv"
+    if ext == ".json":
+        return "json"
+    return "text"
+
+
+def uses_value_formats(dest_file):
+    """Your saved Value Formats (1 | 2 | 3 -> [1 2 3] ...) are for MATLAB files only.
+
+    With no destination given (None) they are used, as before.
+    """
+    return dest_file is None or destination_kind(dest_file) == "matlab"
+
+
+def kind_label(dest_file):
+    return {"matlab": "MATLAB", "csv": "CSV", "json": "JSON"}.get(
+        destination_kind(dest_file), "text")
 
 
 # ----------------------------------------------------------------- helpers
@@ -175,14 +208,18 @@ def compose_renames(old_renames, changes):
     return renames
 
 
-def render_source(renames=None, path=SOURCE_FILE, plain=None, skipped=None):
-    """Convert the Grasshopper values with the saved formats and write the source file.
+def render_source(renames=None, path=SOURCE_FILE, plain=None, skipped=None, dest_file=None):
+    """Convert the Grasshopper values and write the source file.
 
-    Lines look like  name = value;  in MATLAB syntax. Applies renames saved from
-    the config window so saved links still match. Returns (pairs_written, skipped).
+    Lines look like  name = value;  (the program's internal text form). The saved
+    Value Formats are applied only when the destination is a MATLAB file (or
+    dest_file is None); for a .csv / .json / .py / .txt destination just the
+    built-in conversions are used. Applies renames saved from the config window
+    so saved links still match. Returns (pairs_written, skipped).
     """
     plain = load_raw() if plain is None else plain
-    texts, bad, _ = render_pairs(plain, value_formats.load_rules(FORMATS_FILE))
+    rules = value_formats.load_rules(FORMATS_FILE) if uses_value_formats(dest_file) else None
+    texts, bad, _ = render_pairs(plain, rules)
     skipped = list(skipped or []) + bad
     renames = renames or {}
     final = {}
@@ -197,19 +234,19 @@ def render_source(renames=None, path=SOURCE_FILE, plain=None, skipped=None):
     return final, skipped
 
 
-def write_source_file(names, values, renames=None, path=SOURCE_FILE):
+def write_source_file(names, values, renames=None, path=SOURCE_FILE, dest_file=None):
     """Save the live GH values, convert them, and write the source file.
 
     Returns (pairs_written, skipped_names).
     """
     plain, skipped = plain_pairs(names, values)
     save_raw(plain)
-    return render_source(renames, path, plain, skipped)
+    return render_source(renames, path, plain, skipped, dest_file)
 
 
 def _check_dest(dest_file):
     if not dest_file or not os.path.isfile(dest_file):
-        raise ValueError("MATLAB file not found: %s" % dest_file)
+        raise ValueError("Destination file not found: %s" % dest_file)
 
 
 def _same_file(a, b):
@@ -257,11 +294,13 @@ def launch_config_gui(names, values, dest_file, python_exe="python",
                       config_path=DEFAULT_CONFIG_PATH):
     """Open the full Transfer window in a separate process (does not block GH).
 
-    Source = the live GH variables, destination = dest_file (the .m file).
+    Source = the live GH variables, destination = dest_file (a .m or .csv file,
+    or any other file with  name = value  lines).
     """
     _check_dest(dest_file)
     config = load_config(config_path) or {}
-    final, skipped = write_source_file(names, values, config.get("renames"))
+    final, skipped = write_source_file(names, values, config.get("renames"),
+                                       dest_file=dest_file)
     if not final:
         raise ValueError("No valid GH variables to configure. Rejected: %s"
                          % (", ".join(skipped) or "none were supplied"))
@@ -313,7 +352,12 @@ def matlab_is_running(matlab_file, max_age=3600):
 
 
 def transfer(names, values, dest_file, config_path=None):
-    """GH variables -> MATLAB .m file. Returns (report_lines, skipped_names)."""
+    """GH variables -> destination file. Returns (report_lines, skipped_names).
+
+    The destination is usually a MATLAB .m file or a .csv file. For a .m file
+    your saved Value Formats are applied; for any other file type the values are
+    written as plain values.
+    """
     _check_dest(dest_file)
     if matlab_is_running(dest_file):
         raise RuntimeError("MATLAB is still running this file. Wait for Run MATLAB "
@@ -321,14 +365,14 @@ def transfer(names, values, dest_file, config_path=None):
     config = load_config(config_path)
     notes = []
 
-    # A saved config only applies to the .m file it was made for.
+    # A saved config only applies to the destination file it was made for.
     if config and config.get("destination") and not _same_file(
             config["destination"], dest_file):
-        notes.append("note: saved config was made for a different MATLAB file - ignored")
+        notes.append("note: saved config was made for a different destination file - ignored")
         config = None
 
     renames = (config or {}).get("renames")
-    final, skipped = write_source_file(names, values, renames)
+    final, skipped = write_source_file(names, values, renames, dest_file=dest_file)
     if not final:
         raise ValueError("No valid GH variables were supplied. Rejected: %s"
                          % (", ".join(skipped) or "none were supplied"))
@@ -352,7 +396,7 @@ def transfer(names, values, dest_file, config_path=None):
 
     # Same history log the standalone GUI writes (optional, never fatal).
     try:
-        from .history import record_transfer
+        from history import record_transfer
         record_transfer(SOURCE_FILE, dest_file, mode_name, selected,
                         result["transferred"], result["changes"],
                         result["mappings"])
@@ -364,7 +408,7 @@ def transfer(names, values, dest_file, config_path=None):
     if not lines:
         lines = ["(no values changed)"]
     for m in result["missing_in_destination"]:
-        lines.append("warning: '%s' not found in MATLAB file" % m)
+        lines.append("warning: '%s' not found in the %s file" % (m, kind_label(dest_file)))
     return lines + notes, skipped
 
 
@@ -665,7 +709,6 @@ class ScriptRun(object):
     def __init__(self, script_path, python_exe, matlab_file, save_type, on_change=None, _stdin=None):
         self.script_path = os.path.abspath(script_path)
         self.output_file = output_file_for(matlab_file, save_type)
-        self.previous_output = self._output_stamp()
         self.started = time.time()
         self.on_change = on_change
         self.proc = subprocess.Popen(
@@ -710,14 +753,6 @@ class ScriptRun(object):
     def output_ready(self):
         """True once the script wrote its output file AFTER this run started."""
         try:
-            return (self._output_stamp() != self.previous_output
-                    and os.path.getmtime(self.output_file) >= self.started - 2)
+            return os.path.getmtime(self.output_file) >= self.started - 2
         except OSError:
             return False
-
-    def _output_stamp(self):
-        try:
-            info = os.stat(self.output_file)
-            return (info.st_mtime_ns, info.st_size, info.st_ino)
-        except OSError:
-            return None

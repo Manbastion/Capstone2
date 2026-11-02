@@ -1,11 +1,3 @@
-# Allow both direct script launch and package import from any checkout name.
-if not __package__:
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-    from habsim_prototype import load_prototype
-    __package__ = load_prototype().__name__
-
 import json
 import os
 import sys
@@ -16,11 +8,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from . import gui as gui  # noqa: E402  (the existing window)
-from .variable_transfer_v2 import read_variables  # noqa: E402
-from . import gh_bridge as gh_bridge  # noqa: E402
-from .gh_bridge import compose_renames  # noqa: E402
-from .format_editor import FormatEditor  # noqa: E402
+import gui  # noqa: E402  (the existing window)
+from variable_transfer_v2 import read_variables  # noqa: E402
+import gh_bridge  # noqa: E402
+from gh_bridge import compose_renames  # noqa: E402
+from format_editor import FormatEditor  # noqa: E402
 
 
 class GrasshopperTransferGUI(gui.VariableTransferGUI):
@@ -52,6 +44,14 @@ class GrasshopperTransferGUI(gui.VariableTransferGUI):
         return None
 
     def _open_formats(self):
+        if not gh_bridge.uses_value_formats(self.gh_destination):
+            messagebox.showinfo(
+                "Value Formats",
+                "Value Formats only apply when the destination is a MATLAB (.m) "
+                "file.\n\nThis destination is a %s file, so the Grasshopper values "
+                "are written as plain values (numbers, true/false, text, [1 2 3])."
+                % gh_bridge.kind_label(self.gh_destination), parent=self)
+            return
         FormatEditor(self, gh_bridge.FORMATS_FILE, gh_bridge.load_raw(),
                      self._formats_saved)
 
@@ -61,7 +61,8 @@ class GrasshopperTransferGUI(gui.VariableTransferGUI):
             self.status.set("Formats saved. They will be used on the next transfer.")
             return
         try:
-            final, skipped = gh_bridge.render_source(self.renames, self.gh_source)
+            final, skipped = gh_bridge.render_source(
+                self.renames, self.gh_source, dest_file=self.gh_destination)
         except ValueError as error:
             messagebox.showerror("Value Formats", str(error), parent=self)
             return
@@ -88,29 +89,40 @@ class GrasshopperTransferGUI(gui.VariableTransferGUI):
     def _browse_destination(self):
         messagebox.showinfo(
             "Destination",
-            "The destination is the MATLAB file wired into the Grasshopper block.",
+            "The destination is the file (.m, .csv, ...) wired into the Grasshopper block.",
             parent=self)
 
     def _config(self):
         """Same as the standalone window, but say exactly why a file is rejected."""
         path = self.destination.get().strip()
+        kind = gh_bridge.destination_kind(path)
+        label = gh_bridge.kind_label(path)
         problem = None
         if not os.path.isfile(path):
-            problem = "The MATLAB file was not found:\n%s" % path
+            problem = "The destination file was not found:\n%s" % path
         else:
             try:
                 found = read_variables(path)
             except UnicodeError:
                 found = None
-                problem = ("The MATLAB file can't be read as UTF-8 text:\n%s\n\n"
+                problem = ("The %s file can't be read as UTF-8 text:\n%s\n\n"
                            "Re-save it as UTF-8 (in MATLAB or Notepad: Save As > "
-                           "Encoding: UTF-8)." % path)
+                           "Encoding: UTF-8)." % (label, path))
             except OSError as error:
                 found = None
-                problem = "The MATLAB file can't be opened:\n%s\n\n%s" % (path, error)
-            if found == {}:
+                problem = "The %s file can't be opened:\n%s\n\n%s" % (label, path, error)
+            if found == {} and kind == "csv":
                 problem = (
-                    "No variables found in the MATLAB file:\n%s\n\n"
+                    "No variables found in the CSV file:\n%s\n\n"
+                    "The first row must be a header row. Two layouts are read:\n\n"
+                    "  one variable per row          names across the header row\n"
+                    "    name,value                    IL,impactStart,coordinates\n"
+                    "    battery,95                    2,438,[0.54 -0.54]\n"
+                    "    mode,fast\n\n"
+                    "Check that the MatlabFile input points at the right file." % path)
+            elif found == {}:
+                problem = (
+                    "No variables found in the destination file:\n%s\n\n"
                     "Only plain value lines are read, e.g.\n"
                     "    battery = 95;\n    pos = [1 2 3];\n    name = 'rover';\n"
                     "    ok = true;   %% comment\n"
@@ -139,7 +151,7 @@ class GrasshopperTransferGUI(gui.VariableTransferGUI):
         self.mode.set(mode if mode in gui.MODES else gui.MODES[0])
         self.renames = dict(state.get("renames") or {})
 
-        # A saved configuration only applies to the same .m file.
+        # A saved configuration only applies to the same destination file.
         same_dest = (
             not state.get("destination")
             or os.path.normcase(os.path.abspath(state["destination"]))

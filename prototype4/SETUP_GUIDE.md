@@ -1,23 +1,5 @@
 # Grasshopper ↔ MATLAB Variable Transfer: Setup Guide
 
-## Update for client handover
-
-See [the Windows client/build guide](../WINDOWS_CLIENT_BUILD.md) before using
-these developer setup steps. A normal checkout now loads Prototype 4 through
-`habsim_prototype.py`; it no longer needs the nonexistent `Capstone2.prototype4`
-folder/package path. Both the project root and this subfolder work for `Repo`.
-
-Paste the current scripts from `grasshopper_blocks` into the matching components
-and save your definition once. The binary `.gh` file still contains its previous
-embedded code. Do not rename the reserved `out` output into a result output.
-
-`run_matlab.py` now starts with empty path defaults, which the RUN block sets.
-Its runner discovers MATLAB (or uses the location saved by the standalone app),
-exports to a fresh folder without appending code to the model, and sends shared
-completion/failure notifications. Select **After each MATLAB run** in settings.
-The standalone app is an easier way to run an already prepared model, but it
-does not perform live Grasshopper variable transfer.
-
 This tool moves variables from Grasshopper into a MATLAB script, lets you run that script, and gives you the results as a file you can read back into Grasshopper.
 
 | Step | Where | What it does |
@@ -37,8 +19,8 @@ Typical loop: change Grasshopper values → press **Run** on the Transfer block 
 |---|---|---|
 | Windows | 10 or 11 | The blocks use Windows paths. |
 | **Rhino 8** (includes Grasshopper) | 8 or newer | Needed for the **Python 3 Script** component. Rhino 7 will not work. |
-| **MATLAB** | R2021a or newer | Needs the `matlab -batch` command. Use the version and toolboxes required by your model. |
-| **Python 3** (python.org) | **3.10 or newer** | Opens the GUI window (needs tkinter) and runs `run_matlab.py`. |
+| **MATLAB** | R2021a or newer | Needs the `matlab -batch` command. The JSON output uses an option added in R2021a. |
+| **Python 3** (python.org) | **3.10 or newer** | Opens the GUI window (needs tkinter) and runs `run_matlab.py` (uses `match`, which needs 3.10+). |
 
 ### 1.1 Install Python (with tkinter)
 
@@ -174,6 +156,25 @@ Paste in: `grasshopper_blocks/block2_transfer_variables.py`
 If `Config` is not connected, or no configuration has been saved yet, the block overwrites variables that have the **same name** in the `.m` file and ignores the rest. If the saved configuration was made for a different `.m` file, it is ignored and `Report` says so.
 
 > **Check the `Values` type hint on BOTH Block 1 and Block 2.** Each block has its own. It must be **No type hint** with **Tree Access**. A hint such as `float` makes Grasshopper convert values *before* the script sees them. For example, the text `-0.54,-0.54` silently becomes the single number `0.7637` (its distance from the origin). Block 2's `Report` ends with a "received from Grasshopper" list showing the type and value of each variable, so you can spot this.
+
+#### CSV destinations (instead of a `.m` file)
+
+Point `MatlabFile` (Blocks 1 and 2) at a `.csv` file instead of a `.m` file and the same blocks write into the CSV. The input keeps its name `MatlabFile` so existing wires keep working. The file type is read from the extension.
+
+The CSV needs a **header row**. Two layouts are recognised automatically:
+
+```text
+One variable per row              Names across the header row
+name,value,units                  IL,impactStart,coordinates
+battery,95,%                      2,438,[0.54 -0.54]
+mode,fast,
+```
+
+- Only the value cell of a matching variable is changed. Every other cell, extra column, the file's encoding (UTF-8 / UTF-8 with BOM / Windows-1252) and its line endings are kept.
+- Values go in as plain cell text: `5`, `true`, `hello`, `[1 2 3]`. A list of text such as `{'a','b'}` doesn't fit in one CSV cell and gives an error.
+- **Value Formats** (the `1 | 2 | 3` -> `[1 2 3]` rules from the GUI) are for `.m` files only. A CSV gets the built-in conversions.
+- Close the CSV in Excel before pressing **Run**, or Windows will refuse the write.
+- A CSV destination can't be run by Block 3. Wire Block 3 only for `.m` destinations.
 
 ### 3.4 Block 3: Run MATLAB
 
@@ -331,14 +332,9 @@ Use Block 3's `Ready` and `OutputFile` outputs to know when the file is there. R
 ```python
 #! python 3
 import sys
-from pathlib import Path
-folder = Path(str(Repo)).expanduser().resolve()
-if not (folder / "habsim_prototype.py").is_file():
-    folder = folder.parent
-if str(folder) not in sys.path:
-    sys.path.insert(0, str(folder))
-from habsim_prototype import load_prototype
-gh_bridge = load_prototype("gh_bridge", folder)
+if Repo not in sys.path:
+    sys.path.insert(0, Repo)
+import gh_bridge
 Names, Values = gh_bridge.read_results(File)
 ```
 

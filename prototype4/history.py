@@ -6,8 +6,8 @@ from pathlib import Path
 from datetime import datetime
 from tkinter import ttk, messagebox, filedialog
 
-from .variable_transfer_v2 import read_variables, set_variable_values
-from .value_files import export_transfer_values, record_value_rows
+from variable_transfer_v2 import read_variables, set_variable_values
+from value_files import export_transfer_values, record_value_rows
 
 FILE = Path(__file__).with_name("history.json")
 LIMIT = 500

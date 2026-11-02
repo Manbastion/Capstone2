@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from . import value_formats as vf
+import value_formats as vf
 
 HINT = {"foreground": "#666666"}
 

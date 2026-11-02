@@ -26,7 +26,6 @@ with input(...)). The results are ready BEFORE that - Ready turns True as soon
 as MATLAB has written the file.
 """
 import sys
-from pathlib import Path
 import System
 import Rhino
 import Grasshopper as gh
@@ -50,16 +49,9 @@ def _recompute():
 
 
 try:
-    folder = Path(str(Repo or "")).expanduser().resolve()
-    if not (folder / "habsim_prototype.py").is_file():
-        folder = folder.parent
-    if not (folder / "habsim_prototype.py").is_file():
-        raise ValueError("Repo must be the extracted Capstone2 folder.")
-    if str(folder) not in sys.path:
-        sys.path.insert(0, str(folder))
-    import importlib
-    from habsim_prototype import load_prototype
-    gh_bridge = load_prototype("gh_bridge", folder)
+    if Repo and Repo not in sys.path:
+        sys.path.insert(0, str(Repo))
+    import importlib, gh_bridge
     importlib.reload(gh_bridge)
 
     run = sc.sticky.get(key)
