@@ -1,5 +1,23 @@
 # Grasshopper ↔ MATLAB Variable Transfer: Setup Guide
 
+## Update for client handover
+
+See [the Windows client/build guide](../WINDOWS_CLIENT_BUILD.md) before using
+these developer setup steps. A normal checkout now loads Prototype 4 through
+`habsim_prototype.py`; it no longer needs the nonexistent `Capstone2.prototype4`
+folder/package path. Both the project root and this subfolder work for `Repo`.
+
+Paste the current scripts from `grasshopper_blocks` into the matching components
+and save your definition once. The binary `.gh` file still contains its previous
+embedded code. Do not rename the reserved `out` output into a result output.
+
+`run_matlab.py` now starts with empty path defaults, which the RUN block sets.
+Its runner discovers MATLAB (or uses the location saved by the standalone app),
+exports to a fresh folder without appending code to the model, and sends shared
+completion/failure notifications. Select **After each MATLAB run** in settings.
+The standalone app is an easier way to run an already prepared model, but it
+does not perform live Grasshopper variable transfer.
+
 This tool moves variables from Grasshopper into a MATLAB script, lets you run that script, and gives you the results as a file you can read back into Grasshopper.
 
 | Step | Where | What it does |
@@ -19,8 +37,8 @@ Typical loop: change Grasshopper values → press **Run** on the Transfer block 
 |---|---|---|
 | Windows | 10 or 11 | The blocks use Windows paths. |
 | **Rhino 8** (includes Grasshopper) | 8 or newer | Needed for the **Python 3 Script** component. Rhino 7 will not work. |
-| **MATLAB** | R2021a or newer | Needs the `matlab -batch` command. The JSON output uses an option added in R2021a. |
-| **Python 3** (python.org) | **3.10 or newer** | Opens the GUI window (needs tkinter) and runs `run_matlab.py` (uses `match`, which needs 3.10+). |
+| **MATLAB** | R2021a or newer | Needs the `matlab -batch` command. Use the version and toolboxes required by your model. |
+| **Python 3** (python.org) | **3.10 or newer** | Opens the GUI window (needs tkinter) and runs `run_matlab.py`. |
 
 ### 1.1 Install Python (with tkinter)
 
@@ -313,9 +331,14 @@ Use Block 3's `Ready` and `OutputFile` outputs to know when the file is there. R
 ```python
 #! python 3
 import sys
-if Repo not in sys.path:
-    sys.path.insert(0, Repo)
-import gh_bridge
+from pathlib import Path
+folder = Path(str(Repo)).expanduser().resolve()
+if not (folder / "habsim_prototype.py").is_file():
+    folder = folder.parent
+if str(folder) not in sys.path:
+    sys.path.insert(0, str(folder))
+from habsim_prototype import load_prototype
+gh_bridge = load_prototype("gh_bridge", folder)
 Names, Values = gh_bridge.read_results(File)
 ```
 

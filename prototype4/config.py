@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from Capstone2.prototype4.variable_transfer_v2 import valid_name, valid_value
-from Capstone2.prototype4.fuzzy_algorithm import best_fuzzy_match, name_similarity, similarity_label
+from .variable_transfer_v2 import valid_name, valid_value
+from .fuzzy_algorithm import best_fuzzy_match, name_similarity, similarity_label
 
 
 class ConfigEditor(tk.Toplevel):

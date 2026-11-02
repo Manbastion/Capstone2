@@ -28,7 +28,7 @@ import os
 import re
 from fnmatch import fnmatchcase
 
-from Capstone2.prototype4.matlab_literals import NUM, Literal, parse, quote, render, token_kind
+from .matlab_literals import NUM, Literal, parse, quote, render, token_kind
 
 FORMAT_VERSION = 1
 

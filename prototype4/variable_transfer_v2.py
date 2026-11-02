@@ -3,7 +3,7 @@ import json
 import os
 import re
 
-from Capstone2.prototype4.matlab_literals import (
+from .matlab_literals import (
     NAME, NUM, normalize, parse as parse_literal, restyle, scan_statements,
 )
 

@@ -11,12 +11,12 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 import importlib  # noqa: E402
-import Capstone2.prototype4.matlab_literals as matlab_literals  # noqa: E402
-import Capstone2.prototype4.value_formats as value_formats  # noqa: E402
-import Capstone2.prototype4.variable_transfer_v2 as variable_transfer_v2  # noqa: E402
+from . import matlab_literals as matlab_literals  # noqa: E402
+from . import value_formats as value_formats  # noqa: E402
+from . import variable_transfer_v2 as variable_transfer_v2  # noqa: E402
 for _module in (matlab_literals, value_formats, variable_transfer_v2):
     importlib.reload(_module)  # Rhino keeps old modules in memory
-from Capstone2.prototype4.variable_transfer_v2 import transfer_data, valid_name, valid_value  # noqa: E402
+from .variable_transfer_v2 import transfer_data, valid_name, valid_value  # noqa: E402
 
 # Persistent folder (not %TEMP%, which Windows may clean up).
 WORK_DIR = os.path.join(os.path.expanduser("~"), "CapstoneGH")
@@ -352,7 +352,7 @@ def transfer(names, values, dest_file, config_path=None):
 
     # Same history log the standalone GUI writes (optional, never fatal).
     try:
-        from Capstone2.prototype4.history import record_transfer
+        from .history import record_transfer
         record_transfer(SOURCE_FILE, dest_file, mode_name, selected,
                         result["transferred"], result["changes"],
                         result["mappings"])
@@ -665,6 +665,7 @@ class ScriptRun(object):
     def __init__(self, script_path, python_exe, matlab_file, save_type, on_change=None, _stdin=None):
         self.script_path = os.path.abspath(script_path)
         self.output_file = output_file_for(matlab_file, save_type)
+        self.previous_output = self._output_stamp()
         self.started = time.time()
         self.on_change = on_change
         self.proc = subprocess.Popen(
@@ -709,6 +710,14 @@ class ScriptRun(object):
     def output_ready(self):
         """True once the script wrote its output file AFTER this run started."""
         try:
-            return os.path.getmtime(self.output_file) >= self.started - 2
+            return (self._output_stamp() != self.previous_output
+                    and os.path.getmtime(self.output_file) >= self.started - 2)
         except OSError:
             return False
+
+    def _output_stamp(self):
+        try:
+            info = os.stat(self.output_file)
+            return (info.st_mtime_ns, info.st_size, info.st_ino)
+        except OSError:
+            return None

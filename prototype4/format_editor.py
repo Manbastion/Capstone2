@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-import Capstone2.prototype4.value_formats as vf
+from . import value_formats as vf
 
 HINT = {"foreground": "#666666"}
 

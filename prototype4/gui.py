@@ -4,11 +4,11 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
-import Capstone2.prototype4.gh_bridge as gh_bridge
-from Capstone2.prototype4.config import ConfigEditor
-from Capstone2.prototype4.history import HistoryWindow, record_transfer
-from Capstone2.prototype4.format_editor import FormatEditor
-from Capstone2.prototype4.variable_transfer_v2 import (
+from . import gh_bridge as gh_bridge
+from .config import ConfigEditor
+from .history import HistoryWindow, record_transfer
+from .format_editor import FormatEditor
+from .variable_transfer_v2 import (
     read_variables,
     transfer_data,
     update_source_variables,

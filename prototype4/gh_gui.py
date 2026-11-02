@@ -1,3 +1,11 @@
+# Allow both direct script launch and package import from any checkout name.
+if not __package__:
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from habsim_prototype import load_prototype
+    __package__ = load_prototype().__name__
+
 import json
 import os
 import sys
@@ -8,11 +16,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-import Capstone2.prototype4.gui as gui  # noqa: E402  (the existing window)
-from Capstone2.prototype4.variable_transfer_v2 import read_variables  # noqa: E402
-import Capstone2.prototype4.gh_bridge as gh_bridge  # noqa: E402
-from Capstone2.prototype4.gh_bridge import compose_renames  # noqa: E402
-from Capstone2.prototype4.format_editor import FormatEditor  # noqa: E402
+from . import gui as gui  # noqa: E402  (the existing window)
+from .variable_transfer_v2 import read_variables  # noqa: E402
+from . import gh_bridge as gh_bridge  # noqa: E402
+from .gh_bridge import compose_renames  # noqa: E402
+from .format_editor import FormatEditor  # noqa: E402
 
 
 class GrasshopperTransferGUI(gui.VariableTransferGUI):
