@@ -1,0 +1,96 @@
+[
+  {
+    "id": "9dfa6cfadee04147a60b3a551476cd4a",
+    "timestamp": "2026-10-11T19:50:56",
+    "source_file": "C:\\Users\\tarus\\Desktop\\ICT Capstone\\Capstone2\\python_variables.txt",
+    "destination_file": "C:\\Users\\tarus\\Desktop\\ICT Capstone\\Capstone2\\matlab_variables.m",
+    "source_name": "python_variables.txt",
+    "destination_name": "matlab_variables.m",
+    "mode": "All Variables",
+    "selected_variables": [
+      "v0",
+      "a"
+    ],
+    "transferred_variables": [
+      {
+        "source": "v0",
+        "destination": "v0"
+      },
+      {
+        "source": "a",
+        "destination": "a"
+      }
+    ],
+    "mappings": {
+      "v0": "v0",
+      "a": "a"
+    },
+    "changes": {
+      "v0": {
+        "before": "12",
+        "after": "0",
+        "source": "v0"
+      }
+    },
+    "reverted_at": null
+  },
+  {
+    "id": "f7807a6bffb5472abdbf35daaac51377",
+    "timestamp": "2026-09-22T00:11:11",
+    "source_file": "/root/ICT2/test_source.py",
+    "destination_file": "/root/ICT2/test_destination.m",
+    "source_name": "test_source.py",
+    "destination_name": "test_destination.m",
+    "mode": "All Variables",
+    "selected_variables": [
+      "battery",
+      "impact_velocity",
+      "wall_thickness",
+      "launch_angle",
+      "air_pressure",
+      "solar_power",
+      "temperature"
+    ],
+    "transferred_variables": [
+      {
+        "source": "battery",
+        "destination": "battry"
+      },
+      {
+        "source": "impact_velocity",
+        "destination": "impactVelocity"
+      },
+      {
+        "source": "wall_thickness",
+        "destination": "wallThickness"
+      },
+      {
+        "source": "launch_angle",
+        "destination": "launch_angl"
+      },
+      {
+        "source": "air_pressure",
+        "destination": "airPress"
+      },
+      {
+        "source": "solar_power",
+        "destination": "solarPwr"
+      },
+      {
+        "source": "temperature",
+        "destination": "temperature"
+      }
+    ],
+    "mappings": {
+      "battery": "battry",
+      "impact_velocity": "impactVelocity",
+      "wall_thickness": "wallThickness",
+      "launch_angle": "launch_angl",
+      "air_pressure": "airPress",
+      "solar_power": "solarPwr",
+      "temperature": "temperature"
+    },
+    "changes": {},
+    "reverted_at": null
+  }
+]

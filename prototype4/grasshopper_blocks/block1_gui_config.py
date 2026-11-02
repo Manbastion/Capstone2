@@ -33,7 +33,7 @@ Config, Status = None, ""
 try:
     if Repo and Repo not in sys.path:
         sys.path.insert(0, str(Repo))
-    import importlib, Capstone2.prototype4.gh_bridge as gh_bridge
+    import importlib, gh_bridge as gh_bridge
     importlib.reload(gh_bridge)          # pick up edits without restarting Rhino
 
     Config = gh_bridge.DEFAULT_CONFIG_PATH

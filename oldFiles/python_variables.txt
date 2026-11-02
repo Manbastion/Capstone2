@@ -1,0 +1,6 @@
+length = 24.0
+width = 8.5;
+hiehht = 3.0;
+material = “steel”;
+supports = [1, 0];
+load = [10, 5];

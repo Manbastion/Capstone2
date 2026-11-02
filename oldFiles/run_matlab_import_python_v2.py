@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from Capstone2.prototype4.variable_transfer_v2 import transfer_data
+from Capstone2.oldFiles.variable_transfer_v2 import transfer_data
 
 custom_block_txt = r"""save vars.mat;
 save("vars.txt", "-ascii");
@@ -26,8 +26,8 @@ fid = fopen("matlab_output_variables.json", "w");
 fprintf(fid, "%s", jsonencode(vars, "PrettyPrint", true));
 fclose(fid);"""
 
-def full_run(output_file, save_type) :
-    print("MATLAB running...")
+def full_run(input_file, output_file, save_type) :
+
     match (save_type) :
         case "csv" :
             custom_block = custom_block_csv
@@ -38,6 +38,7 @@ def full_run(output_file, save_type) :
     custom_lines = custom_block.splitlines()
 
     matlab_script = output_file[0:len(output_file)-2]
+    transfer_data(input_file,output_file,"everything")
     with open(output_file, "r") as file:
         original_file = file.read()
     with open(output_file, "a") as file:
@@ -48,7 +49,7 @@ def full_run(output_file, save_type) :
     finally:
         with open(output_file, "w") as f:
             f.write(original_file)
-    print("MATLAB file run complete. Saving output variables.")
+
     try:
         os.remove("vars.mat")
         print("\nFile deleted successfully.")

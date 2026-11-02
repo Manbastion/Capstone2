@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from variable_transfer_v2 import transfer_data
+from Capstone2.oldFiles.variable_transfer_v2 import transfer_data
 
 custom_block = r"""save vars.mat;
 save("vars.txt", "-ascii");
