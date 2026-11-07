@@ -8,8 +8,9 @@ A "literal" is the right-hand side of a simple assignment in a .m file:
     {'a','b'}    {1,'x',true}  ["a","b"]  []         {}          ''
 
 Arrays may span several lines (with or without "..."), and may be any length.
-Anything else (v0 + a*t, zeros(3), linspace(...)) is a calculation, not a literal,
-and is left alone.
+Expressions such as v0 + a*t, zeros(3), and linspace(...) are not literals, but
+their assignment names are still scanned so they can appear in the configuration
+window and be replaced/restored when required.
 
 Used by variable_transfer_v2.py (reading/writing .m files) and value_formats.py
 (turning Grasshopper values into these literals).
@@ -197,7 +198,11 @@ def restyle(new_text, old_text):
 
 # ------------------------------------------------------------ file scanning
 class Statement(object):
-    """One 'name = literal' assignment found in a text file."""
+    """One ``name = value`` assignment found in a text file.
+
+    ``literal`` is a Literal object for plain values and None for formulas /
+    expressions. Both kinds remain editable assignment targets.
+    """
 
     def __init__(self, start, end, indent, name, op, value, tail, newline, literal):
         self.start, self.end = start, end          # line numbers, inclusive
@@ -280,7 +285,13 @@ def _read_value(lines, i, col):
 
 
 def scan_statements(lines):
-    """All 'name = literal' assignments in a list of lines (with line endings)."""
+    """Return editable ``name = value`` assignments from text files.
+
+    Plain literals keep their parsed Literal object. Formula/expression values
+    are also returned with ``literal=None`` so the GUI can detect variables such
+    as ``Variable_a = 25 + Variable_b`` and the writer can replace or restore
+    their right-hand side.
+    """
     found = []
     i = 0
     while i < len(lines):
@@ -288,13 +299,31 @@ def scan_statements(lines):
         if not head:
             i += 1
             continue
+
         got = _read_value(lines, i, head.end())
-        lit = parse(got[0]) if got else None
-        if lit is None:
+        if not got:
             i += 1
             continue
+
         value, tail, last, newline = got
-        found.append(Statement(i, last, head.group(1), head.group(2), head.group(3),
-                               value, tail, newline, lit))
+        if not value.strip():
+            i = last + 1
+            continue
+
+        lit = parse(value)
+        found.append(
+            Statement(
+                i,
+                last,
+                head.group(1),
+                head.group(2),
+                head.group(3),
+                value,
+                tail,
+                newline,
+                lit,
+            )
+        )
         i = last + 1
+
     return found

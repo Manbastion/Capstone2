@@ -40,6 +40,27 @@ def valid_value(value):
     return parse_literal(str(value)) is not None
 
 
+def valid_expression(value):
+    """True for a non-empty single MATLAB/Python assignment expression.
+
+    Expressions are allowed only in text-based source/destination files. They are
+    deliberately not treated as literals, and JSON/CSV remain literal-only.
+
+    The scanner has already separated comments and the terminating semicolon, so
+    this rejects line breaks and empty values but otherwise preserves MATLAB
+    formulas such as ``25 + Variable_b`` or ``zeros(3)``.
+    """
+    text = str(value).strip()
+    return bool(text) and "\n" not in text and "\r" not in text
+
+
+def valid_assignment_value(value, path=None):
+    """Can ``value`` be used on the right-hand side for this file type?"""
+    if valid_value(value):
+        return True
+    return bool(path is not None and _is_text_file(path) and valid_expression(value))
+
+
 def _numeric_only(value):
     return bool(re.fullmatch(_NUMERIC_VALUE, str(value).strip()))
 
@@ -320,10 +341,14 @@ def _read_lines(path):
 
 
 def read_variables(path):
-    """Read 'name = value' assignments from .py/.m/.txt, .json or .csv files.
+    """Read ``name = value`` assignments from .py/.m/.txt, .json or .csv files.
 
-    Values are returned as text on one line, e.g. '5', "'hello'", '[1 2 3]',
-    '[1 2;3 4]', '{'a','b'}'. Calculations (v = v0 + a*t) are not variables.
+    Text-based files include both plain values and formulas. For example,
+    ``Variable_a = 25 + Variable_b`` is returned as
+    ``{"Variable_a": "25 + Variable_b"}`` so it appears in Config and can be
+    replaced by a transferred value.
+
+    JSON and CSV retain their existing literal-only behaviour.
     """
     if is_csv_file(path):
         return _read_variables_csv(path)
@@ -342,15 +367,26 @@ def read_variables(path):
     return variables
 
 
-def _check(name, value, path=None):
+def _check(name, value, path=None, allow_expression=False):
     if not valid_name(name):
         raise ValueError(f"Invalid variable name: {name!r}")
-    if not valid_value(value):
+
+    accepted = (
+        valid_assignment_value(value, path)
+        if allow_expression
+        else valid_value(value)
+    )
+
+    if not accepted:
+        extra = " or a MATLAB expression" if allow_expression and path and _is_text_file(path) else ""
         raise ValueError(
             f"Invalid value for {name}: {value!r} (use a number, 'text', "
-            f"[1 2 3], [1 2;3 4], {{'a','b'}}, true/false, NaN or Inf)"
+            f"[1 2 3], [1 2;3 4], {{'a','b'}}, true/false, NaN or Inf{extra})"
         )
-    if path is not None:
+
+    if path is not None and valid_value(value):
+        _check_fits(name, value, path)
+    elif path is not None and not _is_text_file(path):
         _check_fits(name, value, path)
 
 
@@ -390,9 +426,9 @@ def _write_file(path, lines):
         file.writelines(lines)
 
 
-def _write_changes(path, changes, strict=True):
+def _write_changes(path, changes, strict=True, allow_expressions=False):
     for old, (new, value) in changes.items():
-        _check(old, value, path)
+        _check(old, value, path, allow_expression=allow_expressions)
         if not valid_name(new):
             raise ValueError(f"Invalid variable name: {new!r}")
 
@@ -446,11 +482,12 @@ def _write_changes(path, changes, strict=True):
     return {"updated": sorted(found), "missing": missing}
 
 
-def set_variable_values(path, values, strict=False):
+def set_variable_values(path, values, strict=False, allow_expressions=False):
     return _write_changes(
         path,
         {key: (key, str(value).strip()) for key, value in values.items()},
         strict,
+        allow_expressions=allow_expressions,
     )
 
 
@@ -516,7 +553,12 @@ def transfer_data(
         raise ValueError("No supported variables found in source file.")
 
     for name, value in source.items():
-        _check(name, value)
+        _check(
+            name,
+            value,
+            input_file,
+            allow_expression=_is_text_file(input_file),
+        )
 
     selected = set(selected_variables or [])
 
