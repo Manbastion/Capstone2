@@ -1,0 +1,96 @@
+#! python 3
+"""BLOCK 1 - GUI (opens the full Variable Transfer window)
+Rhino 8 > Script editor > new "Python 3 Script" component.
+
+The window is the same one as the standalone app, except:
+  source      = the Names/Values wired into this block (live Grasshopper variables)
+  destination = the file wired into the MatlabFile input: a MATLAB .m file or a .csv
+                file (the input keeps the name MatlabFile so existing wires still work)
+Everything you set in it (mode, tick boxes, links, renames) is saved, and the
+Transfer block uses it when you wire this block's Config output into it.
+
+INPUTS  (right-click each input -> set Type Hint / Access as shown)
+  Repo        str   item  - path to the folder that contains gh_bridge.py
+  Names       str   list  - GH variable names   (e.g. from a Panel)
+  Values      (no type hint) TREE - one BRANCH per variable, in the same order
+                            as Names. Numbers, text, true/false and points are all
+                            fine. 1 item in a branch = one value, several items =
+                            a vector/list (e.g. a time series). Set Tree Access
+                            and leave the type hint EMPTY (a 'float' hint would
+                            reject text). Your own formats (e.g. 1 | 2 | 3 ->
+                            [1 2 3]) are set up in the GUI: Value Formats...
+  MatlabFile  str   item  - the file to transfer into: a MATLAB .m file, or a .csv file
+                            with a header row (see SETUP_GUIDE, "CSV destinations").
+                            Value Formats are applied to .m files only.
+  PythonExe   str   item  - OPTIONAL, python with tkinter (default: "python")
+  Open        bool  item  - wire a Button here; press to open the GUI
+
+OUTPUTS
+  Config          str        - path of the saved settings (wire to Transfer block)
+  Status          str
+  RevertedValues  str list   - values from the most recent History revert; wire to a Panel
+"""
+import json
+import os
+import sys
+import scriptcontext as sc
+import Grasshopper as gh
+
+Config, Status, RevertedValues = None, "", []
+try:
+    if Repo and Repo not in sys.path:
+        sys.path.insert(0, str(Repo))
+    import importlib, gh_bridge
+    importlib.reload(gh_bridge)          # pick up edits without restarting Rhino
+
+    Config = gh_bridge.DEFAULT_CONFIG_PATH
+    if Open:
+        gh_bridge.launch_config_gui(Names, Values, str(MatlabFile),
+                                    str(PythonExe) if PythonExe else "python",
+                                    Config)
+        Status = "GUI opened. Click Save Configuration in it; Transfer block uses the result."
+        gh_bridge.save_last_status(Status)
+    else:
+        have = gh_bridge.load_config(Config)
+        Status = "Saved config found." if have else "No config yet - press Open."
+        last = gh_bridge.load_last_status()   # a Button resets right after a press
+        if last:
+            Status += "  |  Last Open: " + last
+
+    # History runs in the external Tkinter process. When Revert Variables is
+    # clicked it writes revert_output.json beside history.py. Read that file and
+    # expose its human-readable lines as a Grasshopper list output.
+    revert_file = os.path.join(str(Repo), "revert_output.json")
+    if os.path.isfile(revert_file):
+        try:
+            with open(revert_file, encoding="utf-8") as f:
+                payload = json.load(f)
+            lines = payload.get("lines") or []
+            RevertedValues = [str(x) for x in lines]
+            if RevertedValues:
+                Status += "  |  Revert output: %d value(s)." % len(RevertedValues)
+        except Exception as read_error:
+            Status += "  |  Revert output error: %s" % read_error
+
+    # Poll only while the external transfer GUI is open. The Open button's
+    # solution starts the first scheduled refresh; gh_gui.py maintains the flag.
+    running_flag = os.path.join(str(Repo), "gui_running.flag")
+    if Open or os.path.isfile(running_flag):
+        doc = ghenv.Component.OnPingDocument()
+        if doc is not None:
+            component = ghenv.Component
+            def _refresh(_doc):
+                try:
+                    component.ExpireSolution(False)
+                except Exception:
+                    pass
+            doc.ScheduleSolution(750, _refresh)
+except Exception as e:
+    Config = None
+    Status = "ERROR: %s" % e
+    try:
+        gh_bridge.save_last_status(Status)
+    except Exception:
+        pass
+    ghenv.Component.AddRuntimeMessage(
+        gh.Kernel.GH_RuntimeMessageLevel.Error, Status)

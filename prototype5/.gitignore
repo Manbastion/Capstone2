@@ -1,0 +1,28 @@
+# Python runtime
+__pycache__/
+*.py[cod]
+
+# Prototype runtime state
+history.json
+revert_output.json
+gui_running.flag
+matlab_run_done.txt
+vars.mat
+vars.txt
+matlab_output_variables.json
+matlab_output_variables.csv
+matlab_output_variables.txt
+
+# MATLAB-generated figures/results
+*.fig
+myplot.png
+
+# Temporary files
+*.tmp
+*.log
+
+# OS/editor clutter
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
