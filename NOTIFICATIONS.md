@@ -1,5 +1,11 @@
 # Desktop and phone notifications
 
+**Recommended simple notification setup:** see [SIMPLE_NOTIFICATIONS.md](SIMPLE_NOTIFICATIONS.md).
+Open `Launch_Notifications.bat` (Windows) or `Launch_Notifications.command` (Mac)
+once, save/test desktop alerts, and use your existing MATLAB component normally.
+No standalone-app build is required. Updated Prototype 4/5 runners notify after
+runs; the multi-run controller supports one final alert with whole-loop scope.
+
 ## Simpler Windows setup
 
 For client handover, use [CLIENT_START_HERE.md](CLIENT_START_HERE.md). The built

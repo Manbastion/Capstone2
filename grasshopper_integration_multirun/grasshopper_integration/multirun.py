@@ -119,6 +119,20 @@ def current_overrides(state=None, path=STATE_PATH):
     return values
 
 
+def _terminal_alert(state):
+    try:
+        from pathlib import Path
+        for folder in Path(__file__).resolve().parents:
+            if (folder / "habsim_completion.py").is_file():
+                if str(folder) not in sys.path:
+                    sys.path.append(str(folder))
+                break
+        from habsim_completion import notify_batch
+        notify_batch(state)
+    except Exception:
+        pass  # Delivery cannot change saved batch status.
+
+
 def finish_iteration(return_code, path=STATE_PATH):
     """Record MATLAB completion and advance to the next iteration."""
     state = load_state(path)
@@ -139,6 +153,7 @@ def finish_iteration(return_code, path=STATE_PATH):
         state["error"] = "MATLAB returned status %s on iteration %d." % (
             return_code, int(state.get("index", 0)) + 1)
         save_state(state, path)
+        _terminal_alert(state)
         return True
 
     # Stop after the current iteration if Stop was pressed.
@@ -161,6 +176,7 @@ def finish_iteration(return_code, path=STATE_PATH):
         state["pulse_off_done"] = False
 
     save_state(state, path)
+    _terminal_alert(state)
     return True
 
 
@@ -187,3 +203,4 @@ def fail_transfer(error, path=STATE_PATH):
     state["error"] = "Transfer failed on iteration %d: %s" % (
         int(state.get("index", 0)) + 1, error)
     save_state(state, path)
+    _terminal_alert(state)

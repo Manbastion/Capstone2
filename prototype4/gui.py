@@ -442,6 +442,13 @@ class VariableTransferGUI(tk.Tk):
         HistoryWindow(self, self._after_revert)
 
     def _notifications(self):
+        # The settings module is shared at the checkout root, outside this prototype.
+        import sys
+        for folder in Path(__file__).resolve().parents:
+            if (folder / "notification_settings.py").is_file():
+                if str(folder) not in sys.path:
+                    sys.path.append(str(folder))
+                break
         from notification_settings import NotificationSettings
         NotificationSettings(self)
 

@@ -53,11 +53,16 @@ class ScriptRun:
         if os.path.exists(self.marker):
             os.remove(self.marker)
 
+        env = dict(os.environ)
+        for key in list(env):
+            if key.upper() in ("PYTHONHOME", "PYTHONPATH", "PYTHONEXECUTABLE",
+                               "PYTHONSTARTUP", "PYTHONUSERBASE", "__PYVENV_LAUNCHER__"):
+                env.pop(key)
         flags = subprocess.CREATE_NEW_CONSOLE if os.name == "nt" else 0
         self._proc = subprocess.Popen(
             [python_exe, self.script_path],
             cwd=os.path.dirname(self.script_path),
-            creationflags=flags)
+            creationflags=flags, env=env)
 
         threading.Thread(target=self._watch, daemon=True).start()
 

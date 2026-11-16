@@ -29,6 +29,18 @@ def _read_marker(path):
         return None
 
 
+# Locate shared notifications without depending on the checkout folder name.
+from pathlib import Path as _NotificationPath
+import sys as _notification_sys
+for _notification_root in _NotificationPath(__file__).resolve().parents:
+    if (_notification_root / "habsim_completion.py").is_file():
+        if str(_notification_root) not in _notification_sys.path:
+            _notification_sys.path.append(str(_notification_root))
+        break
+from habsim_completion import notify_run
+from habsim_runtime import external_environment
+
+@notify_run
 def full_run(m_file, headless=True):
     """Run m_file in MATLAB and block until it has finished.
 
@@ -54,14 +66,14 @@ def full_run(m_file, headless=True):
     ).format(m=_q(m_file), k=_q(marker))
 
     if headless:
-        cmd = ["matlab", "-batch", statement + " exit(ms_status);"]
+        cmd = ["matlab"] + (["-wait"] if os.name == "nt" else []) + ["-batch", statement + " exit(ms_status);"]
     else:
         # -wait keeps the launcher process alive for as long as MATLAB is open.
         cmd = ["matlab", "-nosplash", "-wait", "-r", statement]
 
     print("MATLAB running...")
     try:
-        proc = subprocess.Popen(cmd, cwd=folder)
+        proc = subprocess.Popen(cmd, cwd=folder, env=external_environment())
     except FileNotFoundError:
         print("Could not start MATLAB: 'matlab' was not found on PATH.")
         return 1
@@ -76,12 +88,14 @@ def full_run(m_file, headless=True):
             status = _read_marker(marker)
             if status is None:
                 # No marker: the script probably called exit/quit itself.
-                status = 0 if proc.returncode == 0 else (proc.returncode or 1)
+                status = proc.returncode or 1  # No completion marker is not a verified success.
             break
         time.sleep(0.5)
 
     if headless:
-        proc.wait()
+        exit_code = proc.wait()
+        if exit_code != 0:
+            status = exit_code
 
     if status == 0:
         print("MATLAB file run complete.")
