@@ -1,0 +1,344 @@
+[
+  {
+    "id": "6ecdd90a3690402498579465accb7af7",
+    "record_type": "multirun",
+    "timestamp": "2026-11-25T19:41:37",
+    "finished_at": "2026-11-25T19:42:42",
+    "status": "complete",
+    "total_iterations": 2,
+    "baseline": {
+      "meteorite.IL": "1",
+      "meteorite.impactStart": "170",
+      "meteorite.coordinates": "-0.54,0.54",
+      "meteorite.holeRadius_IL4": "0.03",
+      "meteorite.holeRadius_IL5": "0.09",
+      "meteorite.dustDuration": "18",
+      "meteorite.dustAccumRate": "0 , 10 , 10",
+      "Sys6U.agent_operational_mode": "1",
+      "Sys6U.settings_csv": "\"HMS_Agent_Settings_User.csv\"",
+      "Sys6U.test_settings_file": "\"Diagnostic_Test_Settings_User.csv\"",
+      "fan_repair_rate": "1"
+    },
+    "iterations": [
+      {
+        "iteration": 1,
+        "started_at": "2026-11-25T19:41:37",
+        "finished_at": "2026-11-25T19:42:12",
+        "return_code": 0,
+        "status": "success",
+        "values": {
+          "meteorite.IL": 1,
+          "meteorite.impactStart": 170,
+          "meteorite.coordinates": "-0.54,0.54",
+          "meteorite.holeRadius_IL4": 0.03,
+          "meteorite.holeRadius_IL5": 0.09,
+          "meteorite.dustDuration": 18,
+          "meteorite.dustAccumRate": "0 , 10 , 10",
+          "Sys6U.agent_operational_mode": 1,
+          "Sys6U.settings_csv": "HMS_Agent_Settings_User.csv",
+          "Sys6U.test_settings_file": "Diagnostic_Test_Settings_User.csv",
+          "fan_repair_rate": 1
+        },
+        "changed_variables": {
+          "meteorite.IL": 1,
+          "meteorite.impactStart": 170,
+          "meteorite.holeRadius_IL4": 0.03,
+          "meteorite.holeRadius_IL5": 0.09,
+          "meteorite.dustDuration": 18,
+          "Sys6U.agent_operational_mode": 1,
+          "Sys6U.settings_csv": "HMS_Agent_Settings_User.csv",
+          "Sys6U.test_settings_file": "Diagnostic_Test_Settings_User.csv",
+          "fan_repair_rate": 1
+        },
+        "matlab_output_folder": "C:/Users/tarus/Desktop/ICT Capstone/GH-HABSIM-Prototype7-Multirun-Regression-Fix/GH_HABSIM_Prototype7_Notifications_Fixed/GH_HabSim_Fixed/examples/HabSim_Output"
+      },
+      {
+        "iteration": 2,
+        "started_at": "2026-11-25T19:42:12",
+        "finished_at": "2026-11-25T19:42:42",
+        "return_code": 0,
+        "status": "success",
+        "values": {
+          "meteorite.IL": 1,
+          "meteorite.impactStart": 30,
+          "meteorite.coordinates": "-0.54,0.54",
+          "meteorite.holeRadius_IL4": 0.02,
+          "meteorite.holeRadius_IL5": 0.12,
+          "meteorite.dustDuration": 18,
+          "meteorite.dustAccumRate": "0, 10, 10",
+          "Sys6U.agent_operational_mode": 1,
+          "Sys6U.settings_csv": "HMS_Agent_Settings_User.csv",
+          "Sys6U.test_settings_file": "Diagnostic_Test_Settings_User.csv",
+          "fan_repair_rate": 0.5
+        },
+        "changed_variables": {
+          "meteorite.IL": 1,
+          "meteorite.impactStart": 30,
+          "meteorite.holeRadius_IL4": 0.02,
+          "meteorite.holeRadius_IL5": 0.12,
+          "meteorite.dustDuration": 18,
+          "meteorite.dustAccumRate": "0, 10, 10",
+          "Sys6U.agent_operational_mode": 1,
+          "Sys6U.settings_csv": "HMS_Agent_Settings_User.csv",
+          "Sys6U.test_settings_file": "Diagnostic_Test_Settings_User.csv",
+          "fan_repair_rate": 0.5
+        },
+        "matlab_output_folder": "C:/Users/tarus/Desktop/ICT Capstone/GH-HABSIM-Prototype7-Multirun-Regression-Fix/GH_HABSIM_Prototype7_Notifications_Fixed/GH_HabSim_Fixed/examples/HabSim_Output"
+      }
+    ],
+    "error": ""
+  },
+  {
+    "id": "9c628f218a6c4a539e18380cbc66c81a",
+    "record_type": "multirun",
+    "timestamp": "2026-11-25T19:27:12",
+    "finished_at": "2026-11-25T19:30:29",
+    "status": "complete",
+    "total_iterations": 2,
+    "baseline": {
+      "meteorite.IL": "1",
+      "meteorite.impactStart": "170",
+      "meteorite.coordinates": "-0.54,0.54",
+      "meteorite.holeRadius_IL4": "0.03",
+      "meteorite.holeRadius_IL5": "0.09",
+      "meteorite.dustDuration": "18",
+      "meteorite.dustAccumRate": "0 , 10 , 10",
+      "Sys6U.agent_operational_mode": "1",
+      "Sys6U.settings_csv": "\"HMS_Agent_Settings_User.csv\"",
+      "Sys6U.test_settings_file": "\"Diagnostic_Test_Settings_User.csv\"",
+      "fan_repair_rate": "1"
+    },
+    "iterations": [
+      {
+        "iteration": 1,
+        "started_at": "2026-11-25T19:27:12",
+        "finished_at": "2026-11-25T19:29:10",
+        "return_code": 0,
+        "status": "success",
+        "values": {
+          "meteorite.IL": 1,
+          "meteorite.impactStart": 170,
+          "meteorite.coordinates": "-0.54,0.54",
+          "meteorite.holeRadius_IL4": 0.03,
+          "meteorite.holeRadius_IL5": 0.09,
+          "meteorite.dustDuration": 18,
+          "meteorite.dustAccumRate": "0 , 10 , 10",
+          "Sys6U.agent_operational_mode": 1,
+          "Sys6U.settings_csv": "HMS_Agent_Settings_User.csv",
+          "Sys6U.test_settings_file": "Diagnostic_Test_Settings_User.csv",
+          "fan_repair_rate": 1
+        },
+        "changed_variables": {
+          "meteorite.IL": 1,
+          "meteorite.impactStart": 170,
+          "meteorite.holeRadius_IL4": 0.03,
+          "meteorite.holeRadius_IL5": 0.09,
+          "meteorite.dustDuration": 18,
+          "Sys6U.agent_operational_mode": 1,
+          "Sys6U.settings_csv": "HMS_Agent_Settings_User.csv",
+          "Sys6U.test_settings_file": "Diagnostic_Test_Settings_User.csv",
+          "fan_repair_rate": 1
+        },
+        "matlab_output_folder": ""
+      },
+      {
+        "iteration": 2,
+        "started_at": "2026-11-25T19:29:10",
+        "finished_at": "2026-11-25T19:30:29",
+        "return_code": 0,
+        "status": "success",
+        "values": {
+          "meteorite.IL": 1,
+          "meteorite.impactStart": 30,
+          "meteorite.coordinates": "-0.54,0.54",
+          "meteorite.holeRadius_IL4": 0.02,
+          "meteorite.holeRadius_IL5": 0.12,
+          "meteorite.dustDuration": 18,
+          "meteorite.dustAccumRate": "0, 10, 10",
+          "Sys6U.agent_operational_mode": 1,
+          "Sys6U.settings_csv": "HMS_Agent_Settings_User.csv",
+          "Sys6U.test_settings_file": "Diagnostic_Test_Settings_User.csv",
+          "fan_repair_rate": 0.5
+        },
+        "changed_variables": {
+          "meteorite.IL": 1,
+          "meteorite.impactStart": 30,
+          "meteorite.holeRadius_IL4": 0.02,
+          "meteorite.holeRadius_IL5": 0.12,
+          "meteorite.dustDuration": 18,
+          "meteorite.dustAccumRate": "0, 10, 10",
+          "Sys6U.agent_operational_mode": 1,
+          "Sys6U.settings_csv": "HMS_Agent_Settings_User.csv",
+          "Sys6U.test_settings_file": "Diagnostic_Test_Settings_User.csv",
+          "fan_repair_rate": 0.5
+        },
+        "matlab_output_folder": ""
+      }
+    ],
+    "error": ""
+  },
+  {
+    "id": "e490a688681c4caea1eef308db5c5f7d",
+    "record_type": "multirun",
+    "timestamp": "2026-11-25T19:26:33",
+    "finished_at": "2026-11-25T19:26:34",
+    "status": "error",
+    "total_iterations": 2,
+    "baseline": {
+      "meteorite.IL": "1",
+      "meteorite.impactStart": "170",
+      "meteorite.coordinates": "-0.54,0.54",
+      "meteorite.holeRadius_IL4": "0.03",
+      "meteorite.holeRadius_IL5": "0.09",
+      "meteorite.dustDuration": "18",
+      "meteorite.dustAccumRate": "0 , 10 , 10",
+      "Sys6U.agent_operational_mode": "1",
+      "Sys6U.settings_csv": "\"HMS_Agent_Settings_User.csv\"",
+      "Sys6U.test_settings_file": "\"Diagnostic_Test_Settings_User.csv\"",
+      "fan_repair_rate": "1"
+    },
+    "iterations": [
+      {
+        "iteration": 1,
+        "started_at": "2026-11-25T19:26:34",
+        "finished_at": "2026-11-25T19:26:34",
+        "return_code": 1,
+        "status": "failed",
+        "values": {
+          "meteorite.IL": 1,
+          "meteorite.impactStart": 170,
+          "meteorite.coordinates": "-0.54,0.54",
+          "meteorite.holeRadius_IL4": 0.03,
+          "meteorite.holeRadius_IL5": 0.09,
+          "meteorite.dustDuration": 18,
+          "meteorite.dustAccumRate": "0 , 10 , 10",
+          "Sys6U.agent_operational_mode": 1,
+          "Sys6U.settings_csv": "HMS_Agent_Settings_User.csv",
+          "Sys6U.test_settings_file": "Diagnostic_Test_Settings_User.csv",
+          "fan_repair_rate": 1
+        },
+        "changed_variables": {
+          "meteorite.IL": 1,
+          "meteorite.impactStart": 170,
+          "meteorite.holeRadius_IL4": 0.03,
+          "meteorite.holeRadius_IL5": 0.09,
+          "meteorite.dustDuration": 18,
+          "Sys6U.agent_operational_mode": 1,
+          "Sys6U.settings_csv": "HMS_Agent_Settings_User.csv",
+          "Sys6U.test_settings_file": "Diagnostic_Test_Settings_User.csv",
+          "fan_repair_rate": 1
+        },
+        "matlab_output_folder": ""
+      }
+    ],
+    "error": "MATLAB returned status 1 on iteration 1."
+  },
+  {
+    "id": "f30649874a9b4bcca670d5a46ec4f487",
+    "record_type": "multirun",
+    "timestamp": "2026-11-25T08:24:22",
+    "finished_at": "2026-11-25T08:24:22",
+    "status": "complete",
+    "total_iterations": 3,
+    "baseline": {},
+    "iterations": [
+      {
+        "iteration": 1,
+        "started_at": "",
+        "finished_at": "2026-11-25T08:24:22",
+        "return_code": 0,
+        "status": "success",
+        "values": {
+          "a": 1
+        },
+        "changed_variables": {
+          "a": 1
+        },
+        "matlab_output_folder": ""
+      },
+      {
+        "iteration": 2,
+        "started_at": "",
+        "finished_at": "2026-11-25T08:24:22",
+        "return_code": 0,
+        "status": "success",
+        "values": {
+          "a": 2
+        },
+        "changed_variables": {
+          "a": 2
+        },
+        "matlab_output_folder": ""
+      },
+      {
+        "iteration": 3,
+        "started_at": "",
+        "finished_at": "2026-11-25T08:24:22",
+        "return_code": 0,
+        "status": "success",
+        "values": {
+          "a": 3
+        },
+        "changed_variables": {
+          "a": 3
+        },
+        "matlab_output_folder": ""
+      }
+    ],
+    "error": ""
+  },
+  {
+    "id": "cad06a64d3d0497abb5d33a0c9a47555",
+    "record_type": "multirun",
+    "timestamp": "2026-11-25T08:19:47",
+    "finished_at": "2026-11-25T08:19:47",
+    "status": "complete",
+    "total_iterations": 3,
+    "baseline": {},
+    "iterations": [
+      {
+        "iteration": 1,
+        "started_at": "",
+        "finished_at": "2026-11-25T08:19:47",
+        "return_code": 0,
+        "status": "success",
+        "values": {
+          "a": 1
+        },
+        "changed_variables": {
+          "a": 1
+        },
+        "matlab_output_folder": ""
+      },
+      {
+        "iteration": 2,
+        "started_at": "",
+        "finished_at": "2026-11-25T08:19:47",
+        "return_code": 0,
+        "status": "success",
+        "values": {
+          "a": 2
+        },
+        "changed_variables": {
+          "a": 2
+        },
+        "matlab_output_folder": ""
+      },
+      {
+        "iteration": 3,
+        "started_at": "",
+        "finished_at": "2026-11-25T08:19:47",
+        "return_code": 0,
+        "status": "success",
+        "values": {
+          "a": 3
+        },
+        "changed_variables": {
+          "a": 3
+        },
+        "matlab_output_folder": ""
+      }
+    ],
+    "error": ""
+  }
+]

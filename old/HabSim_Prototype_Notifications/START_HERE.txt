@@ -1,0 +1,35 @@
+HabSim notifications for the standalone Grasshopper prototype
+==============================================================
+
+1. Extract the ZIP. Copy ALL the files inside HabSim_Prototype_Notifications
+   into your existing grasshopper_integration folder, next to run_matlab.py.
+   For the Desktop setup, this is:
+   Desktop\grasshopper_integration_multirun\grasshopper_integration
+   Do not leave the files in their own subfolder inside grasshopper_integration.
+
+2. When MATLAB is idle, double-click 00_Enable_Notifications.bat in that
+   folder. It backs up your existing MATLAB runner, adds the notification
+   hook and opens settings. This keeps your current MATLAB path and other
+   edits. If you run setup a second time it does not add another hook.
+
+3. In settings, tick Enable notifications and Show a desktop alert.
+   Choose After each MATLAB run and click Save settings. Click Test desktop
+   to check that Windows displays a popup. Close settings, then press the Run
+   button on Block 3 (Run MATLAB) in Grasshopper. Watch for Ready = True and
+   "HabSim - MATLAB run complete". No Grasshopper wiring changes are needed
+   if that block already runs run_matlab.py from the same folder.
+
+Use Launch_Notifications.bat if you want to open settings again. It uses the
+same saved preferences as the original Capstone2 notification settings.
+You can also test phone delivery there if you have already configured ntfy.
+
+This add-on enables alerts for individual MATLAB runs. The whole-loop alert
+still needs to be integrated and tested with your prototype's batch controller.
+
+If setup stops because it cannot find the runner, check that this bundle's
+files are next to the actual run_matlab.py used by Grasshopper, and that
+run_matlab_import_python_v2.py is also in that folder.
+
+If you want to undo the code change, keep a copy of the patched file, then
+restore run_matlab_import_python_v2.py from its .before_notifications backup.
+The setup window displays the exact backup filename.

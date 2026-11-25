@@ -1,0 +1,13 @@
+HabSim notifications
+====================
+
+1. Extract the project folder and keep its Python files together.
+2. When MATLAB is idle, run `00_Enable_Notifications.bat` to install/check the
+   notification hook and open notification settings.
+3. Enable desktop notifications and choose whether to be notified after each
+   MATLAB run or after the complete multi-run batch.
+4. Use `Launch_Notifications.bat` to reopen settings later.
+
+The notification hook is integrated with `run_matlab_import_python_v2.py`.
+The Grasshopper Run MATLAB component continues to launch `run_matlab.py`.
+For component setup and wiring, see `SETUP_GUIDE.md`.

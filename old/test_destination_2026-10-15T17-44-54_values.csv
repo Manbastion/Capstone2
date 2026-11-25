@@ -1,0 +1,8 @@
+﻿Source Variable,Destination Variable,Value,Before,After
+battery,battry,100,95,100
+impact_velocity,impactVelocity,1250,1250,1250
+wall_thickness,wallThickness,0.08,0.08,0.08
+launch_angle,launch_angl,45,45,45
+air_pressure,airPress,6,101325,6
+solar_power,solarPwr,"[1, 1, 2, 3]",2500,"[1, 1, 2, 3]"
+temperature,temperature,"""yes""",295.15,"""yes"""
